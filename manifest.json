@@ -3,8 +3,8 @@
 	"description": "Add methods to handle structured data",
 	"pages": [
 		{
-			"name": "database",
-			"filename": "pages/Database.js"
+			"name": "database-new",
+			"filename": "pages/DatabaseNew.js"
 		}
 	],
 	"menu": [
