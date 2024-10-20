@@ -1,8 +1,11 @@
+import { useRouter } from 'vue-router'
 import { ref, watch, computed } from 'vue'
 
 export default {
     props: ['database'],
     setup(props) {
+        const router = useRouter()
+
         const show = ref(false)
         const collections = ref([])
 
@@ -17,7 +20,13 @@ export default {
             collections.value = props.database.collections
         }
 
-        function onClick() {}
+        function onClick() {
+            router.push({
+                name: 'app-page',
+                params: { name: 'database' },
+                query: { databaseId: props.database.id },
+            })
+        }
 
         watch(
             show,

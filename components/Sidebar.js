@@ -17,6 +17,8 @@ export default {
         onMounted(load)
 
         onHook('database:created', load)
+        onHook('database:updated', load)
+        onHook('database:deleted', load)
 
         return {
             databases,
