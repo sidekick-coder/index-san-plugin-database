@@ -1,10 +1,12 @@
-import { useRouter } from 'vue-router'
-import { ref, watch, computed } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { ref, watch, computed, onMounted } from 'vue'
+import { listCollections } from '../composables/listCollections.js'
 
 export default {
     props: ['database'],
     setup(props) {
         const router = useRouter()
+        const route = useRoute()
 
         const show = ref(false)
         const collections = ref([])
@@ -16,8 +18,8 @@ export default {
             return 'heroicons:folder-solid'
         })
 
-        function setCollections() {
-            collections.value = props.database.collections
+        async function setCollections() {
+            collections.value = await listCollections(props.database.id)
         }
 
         function onClick() {
@@ -36,6 +38,10 @@ export default {
             { immediate: true }
         )
 
+        onMounted(() => {
+            show.value = route.query.databaseId === props.database.id
+        })
+
         return {
             show,
             collections,
@@ -46,7 +52,7 @@ export default {
     },
     template: `
 			<is-list-item class="group" @click="onClick">
-				<div class="w-4">
+				<div class="w-6">
 					<is-btn
 						size="none"
 						color="none"
@@ -54,12 +60,12 @@ export default {
 						variant="text"
 						@click.stop="show = !show"
 					>
-						<is-icon :name="icon" class="relative text-sm group-hover:opacity-0" />
+						<is-icon :name="icon" class="relative group-hover:opacity-0" />
 
 						<is-icon
 							name="heroicons:chevron-right-solid"
 							:class="show ? 'rotate-90' : ''"
-							class="transition-all absolute  opacity-0 group-hover:opacity-100 text-sm"
+							class="transition-all absolute  opacity-0 group-hover:opacity-100"
 						/>
 				
 					</is-btn>
@@ -83,8 +89,8 @@ export default {
 						class="pl-10"
 						exact
 				>
-					<div class="w-4">
-						<is-icon :name="c.icon || 'heroicons:archive-box-20-solid'" class="text-sm" />
+					<div class="w-6">
+						<is-icon :name="c.icon || 'heroicons:archive-box-20-solid'" />
 					</div>
 					<div class="ml-4">
 						{{ c.name }}

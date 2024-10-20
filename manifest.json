@@ -7,6 +7,10 @@
 			"filename": "pages/Database.js"
 		},
 		{
+			"name": "database-collection",
+			"filename": "pages/Collection.js"
+		},
+		{
 			"name": "database-new",
 			"filename": "pages/DatabaseNew.js"
 		}
