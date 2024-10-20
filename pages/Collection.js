@@ -68,8 +68,21 @@ export default {
         const fields = ref([])
         const items = ref([])
 
+        const editableFields = computed(() => {
+            return fields.value.filter((f) => {
+                if (['_checkbox', 'id'].includes(f.name)) return
+
+                return true
+            })
+        })
+
         function setFields() {
             fields.value = collection.value.properties
+
+            fields.value.unshift({
+                name: '_checkbox',
+                class: 'max-w-20',
+            })
         }
 
         async function setItems() {
@@ -100,6 +113,7 @@ export default {
             original,
 
             fields,
+            editableFields,
             items,
 
             addItem,
@@ -120,14 +134,23 @@ export default {
 				<is-btn @click="addItem">Add new</is-btn>
 			</is-card-head>
 			<is-data-table :items="items" :fields="fields" item-field-class="p-0">
-				<template v-for="f in fields" :key="f.name" #['item-'+f.name]="{ item }">
+				<template #item-_checkbox="{ item }">
+					<div class="flex items-center justify-center">
+						<is-checkbox class="w-auto" />
+					</div>
+				</template>
+				<template #item-id="{ item }">
+					<div class="text-body-500 px-4 py-2">{{ item.id }}</div>
+				</template>
+
+				<template v-for="field in editableFields" :key="field.name" #['item-'+field.name]="{ item }">
 					<input
-						:value="item[f.name]"
-						:readonly="f.name === 'id'"
+						:value="item[field.name]"
 						class="bg-transparent min-w-full min-h-full py-2 px-4 outline-none focus:bg-body-500"
-						@change="setItem(item.id, { [f.name]: $event.target.value })"
+						@change="setItem(item.id, { [field.name]: $event.target.value })"
 					/>
 				</template>
+
 			</is-data-table>
 		</is-card>
 	`,
