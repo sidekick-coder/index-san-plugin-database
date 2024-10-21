@@ -5,12 +5,11 @@ import { tryCatch } from 'app:utils'
 import dialog from 'app:dialog'
 import snackbar from 'app:snackbar'
 
-import { updateDatabase } from '../composables/updateDatabase.js'
-import { destroyDatabase } from '../composables/destroyDatabase.js'
 import { showCollection } from '../composables/showCollection.js'
 import { createItem } from '../composables/createItem.js'
 import { listItems } from '../composables/listItems.js'
 import { updateItem } from '../composables/updateItem.js'
+import { destroyItem } from '../composables/destroyItem.js'
 
 export default {
     setup() {
@@ -30,43 +29,10 @@ export default {
 
         watch(collectionId, load, { immediate: true })
 
-        async function submit() {
-            saving.value = true
-
-            const [, error] = await tryCatch(() => updateDatabase(databaseId.value, database.value))
-
-            if (error) {
-                snackbar.error(error.message)
-                return
-            }
-
-            setTimeout(async () => {
-                snackbar.success('Database updated')
-
-                await load()
-
-                saving.value = false
-            }, 800)
-        }
-
-        async function destroy() {
-            if (!(await dialog.confirm())) return
-
-            const [, error] = await tryCatch(() => destroyDatabase(database.value.id))
-
-            if (error) {
-                snackbar.error(error.message)
-                return
-            }
-
-            snackbar.success('Database deleted')
-
-            router.push({ name: 'app-page', params: { name: 'databases' } })
-        }
-
         // table
         const fields = ref([])
         const items = ref([])
+        const selected = ref([])
 
         const editableFields = computed(() => {
             return fields.value.filter((f) => {
@@ -107,10 +73,32 @@ export default {
             await updateItem(databaseId.value, collectionId.value, itemId, payload)
         }
 
+        // delete
+        const deleting = ref(false)
+
+        async function deleteSelected() {
+            if (!(await dialog.confirm())) return
+
+            deleting.value = true
+
+            for await (const id of selected.value) {
+                await destroyItem(databaseId.value, collectionId.value, id)
+            }
+
+            await load()
+            selected.value = []
+
+            setTimeout(() => {
+                snackbar.success('Item(s) deleted')
+                deleting.value = false
+            }, 800)
+        }
+
         return {
             saving,
             collection,
             original,
+            selected,
 
             fields,
             editableFields,
@@ -119,8 +107,8 @@ export default {
             addItem,
             setItem,
 
-            submit,
-            destroy,
+            deleting,
+            deleteSelected,
         }
     },
     template: `
@@ -130,13 +118,15 @@ export default {
 					<is-card-title>{{ collection?.name }}</is-card-title>
 					<is-card-subtitle v-if="collection?.description">{{ original.description }}</is-card-subtitle>
 				</div>
-					
-				<is-btn @click="addItem">Add new</is-btn>
+                <div class="flex gap-x-2">
+				    <is-btn @click="deleteSelected" color="danger" :disabled="!selected.length" :loading="deleting">Delete</is-btn>
+				    <is-btn @click="addItem">Add new</is-btn>
+                </div>
 			</is-card-head>
 			<is-data-table :items="items" :fields="fields" item-field-class="p-0">
 				<template #item-_checkbox="{ item }">
 					<div class="flex items-center justify-center">
-						<is-checkbox class="w-auto" />
+						<is-checkbox class="w-auto" v-model:multiple="selected" :item-value="item.id" />
 					</div>
 				</template>
 				<template #item-id="{ item }">
