@@ -13,8 +13,8 @@
 			"filename": "pages/Database.js"
 		},
 		{
-			"name": "database-collection",
-			"filename": "pages/Collection.js"
+			"name": "database-item-list",
+			"filename": "pages/ItemList.js"
 		},
 		{
 			"name": "database-new",

@@ -30,36 +30,49 @@ export default {
         watch(collectionId, load, { immediate: true })
 
         // table
-        const fields = ref([])
+        // const fields = ref([])
         const items = ref([])
         const selected = ref([])
+
+        const fields = computed(() => {
+            const result = [
+                {
+                    name: '_checkbox',
+                    class: 'flex-auto w-20 shrink-0',
+                },
+            ]
+
+            if (items.value[0]) {
+                Object.keys(items.value[0])
+                    .toSorted()
+                    .forEach((k) => {
+                        result.push({
+                            name: k,
+                            label: k,
+                            class: 'w-96 flex-auto shrink-0',
+                        })
+                    })
+            }
+
+            return result
+        })
 
         const editableFields = computed(() => {
             return fields.value.filter((f) => {
                 if (['_checkbox'].includes(f.name)) return
 
-                return !f.readonly
+                return !f.name.startsWith('_')
             })
         })
 
         const readonlyFields = computed(() => {
-            return fields.value.filter((f) => f.readonly)
+            return fields.value.filter((f) => f.name !== '_checkbox' && f.name.startsWith('_'))
         })
-
-        function setFields() {
-            fields.value = collection.value.properties || []
-
-            fields.value.unshift({
-                name: '_checkbox',
-                class: 'max-w-20',
-            })
-        }
 
         async function setItems() {
             items.value = await listItems(databaseId.value, collectionId.value)
         }
 
-        watch(collection, setFields)
         watch(collection, setItems)
 
         // create
@@ -129,10 +142,19 @@ export default {
 				    <is-btn @click="addItem">Add new</is-btn>
                 </div>
 			</is-card-head>
-			<is-data-table :items="items" :fields="fields" item-field-class="p-0">
+            
+            <div class="w-full overflow-x-auto flex">
+			    <is-data-table
+                    :items="items"
+                    :fields="fields"
+                    :item-class="i => ['hover:bg-body-800', selected.includes(i._id) ? 'bg-body-800' : '']"
+                    item-field-class="p-0"
+                    class="w-auto min-w-full"
+                >
+
 				<template #item-_checkbox="{ item }">
-					<div class="flex items-center justify-center">
-						<is-checkbox class="w-auto" v-model:multiple="selected" :item-value="item.id" />
+					<div class="flex items-center justify-center size-full">
+						<is-checkbox class="w-auto" v-model:multiple="selected" :item-value="item._id" />
 					</div>
 				</template>
 				
@@ -143,12 +165,13 @@ export default {
 				<template v-for="field in editableFields" :key="field.name" #['item-'+field.name]="{ item }">
 					<input
 						:value="item[field.name]"
-						class="bg-transparent min-w-full min-h-full py-2 px-4 outline-none focus:bg-body-500"
+						class="bg-transparent size-full py-2 px-4 outline-none focus:bg-body-500"
 						@change="setItem(item.id, { [field.name]: $event.target.value })"
 					/>
 				</template>
 
 			</is-data-table>
+            </div>
 		</is-card>
 	`,
 }

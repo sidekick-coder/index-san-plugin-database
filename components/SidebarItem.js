@@ -83,7 +83,7 @@ export default {
 						:key="c.id"
 						:to="{
 							name: 'app-page',
-							params: { name: 'database-collection' },
+							params: { name: 'database-item-list' },
 							query: { databaseId: database.id, collectionId: c.id }
 						}"
 						class="pl-10"
