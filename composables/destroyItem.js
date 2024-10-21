@@ -1,12 +1,17 @@
 import { showCollection } from './showCollection.js'
-import { drive, resolve } from 'app:drive'
-import { showItem } from './showItem.js'
+import { showProvider } from './showProvider.js'
 
 export async function destroyItem(databaseId, collectionId, itemId) {
     const collection = await showCollection(databaseId, collectionId)
-    const item = await showItem(databaseId, collectionId, itemId)
 
-    const filename = resolve(collection.path, item.id + '.json')
+    const provider = await showProvider(collection.provider)
 
-    await drive.destroy(filename)
+    if (!provider) {
+        throw new Error('Collection provider not found')
+    }
+
+    return provider.destroy({
+        collection,
+        id: itemId,
+    })
 }

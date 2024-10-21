@@ -1,13 +1,17 @@
-import { listItems } from './listItems.js'
+import { showCollection } from './showCollection.js'
+import { showProvider } from './showProvider.js'
 
 export async function showItem(databaseId, collectionId, itemId) {
-    const items = await listItems(databaseId, collectionId)
+    const collection = await showCollection(databaseId, collectionId)
 
-    const item = items.find((i) => i.id === itemId)
+    const provider = await showProvider(collection.provider)
 
-    if (!item) {
-        throw new Error('Item not found')
+    if (!provider) {
+        throw new Error('Collection provider not found')
     }
 
-    return item
+    return provider.show({
+        collection,
+        id: itemId,
+    })
 }

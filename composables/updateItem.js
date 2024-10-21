@@ -1,14 +1,18 @@
 import { showCollection } from './showCollection.js'
-import { drive, resolve, encode } from 'app:drive'
-import { showItem } from './showItem.js'
+import { showProvider } from './showProvider.js'
 
 export async function updateItem(databaseId, collectionId, itemId, payload) {
     const collection = await showCollection(databaseId, collectionId)
-    const item = await showItem(databaseId, collectionId, itemId)
 
-    Object.assign(item, payload, { id: itemId })
+    const provider = await showProvider(collection.provider)
 
-    const filename = resolve(collection.path, itemId + '.json')
+    if (!provider) {
+        throw new Error('Collection provider not found')
+    }
 
-    await drive.write(filename, encode(JSON.stringify(item, null, 4)))
+    return provider.update({
+        collection,
+        id: itemId,
+        payload,
+    })
 }

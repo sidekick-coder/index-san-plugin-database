@@ -1,6 +1,12 @@
 {
 	"name": "Database",
 	"description": "Add methods to handle structured data",
+    "imports": [
+        {
+            "name": "database:imports",
+            "filename": "imports.js"
+        }
+    ],
 	"pages": [
 		{
 			"name": "database",

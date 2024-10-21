@@ -36,14 +36,18 @@ export default {
 
         const editableFields = computed(() => {
             return fields.value.filter((f) => {
-                if (['_checkbox', 'id'].includes(f.name)) return
+                if (['_checkbox'].includes(f.name)) return
 
-                return true
+                return !f.readonly
             })
         })
 
+        const readonlyFields = computed(() => {
+            return fields.value.filter((f) => f.readonly)
+        })
+
         function setFields() {
-            fields.value = collection.value.properties
+            fields.value = collection.value.properties || []
 
             fields.value.unshift({
                 name: '_checkbox',
@@ -86,6 +90,7 @@ export default {
             }
 
             await load()
+
             selected.value = []
 
             setTimeout(() => {
@@ -102,6 +107,7 @@ export default {
 
             fields,
             editableFields,
+            readonlyFields,
             items,
 
             addItem,
@@ -129,8 +135,9 @@ export default {
 						<is-checkbox class="w-auto" v-model:multiple="selected" :item-value="item.id" />
 					</div>
 				</template>
-				<template #item-id="{ item }">
-					<div class="text-body-500 px-4 py-2">{{ item.id }}</div>
+				
+                <template v-for="field in readonlyFields" :key="field.name" #['item-'+field.name]="{ item }">
+					<div class="text-body-500 px-4 py-2">{{ item[field.name] }}</div>
 				</template>
 
 				<template v-for="field in editableFields" :key="field.name" #['item-'+field.name]="{ item }">
