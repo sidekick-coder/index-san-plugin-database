@@ -10,7 +10,9 @@ export async function updateDatabase(id, payload) {
         throw new Error('Database not found')
     }
 
-    await drive.write(filename, encode(JSON.stringify(payload, null, 4)))
+    const configFilename = resolve(filename, 'config.json')
+
+    await drive.write(configFilename, encode(JSON.stringify(payload, null, 4)))
 
     emitHook('database:updated', payload)
 }

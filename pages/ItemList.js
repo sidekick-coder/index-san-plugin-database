@@ -10,6 +10,7 @@ import { createItem } from '../composables/createItem.js'
 import { listItems } from '../composables/listItems.js'
 import { updateItem } from '../composables/updateItem.js'
 import { destroyItem } from '../composables/destroyItem.js'
+import { listProperties } from '../composables/listProperties.js'
 
 export default {
     setup() {
@@ -30,50 +31,38 @@ export default {
         watch(collectionId, load, { immediate: true })
 
         // table
-        // const fields = ref([])
+        const fields = ref([])
         const items = ref([])
         const selected = ref([])
-
-        const fields = computed(() => {
-            const result = [
-                {
-                    name: '_checkbox',
-                    class: 'flex-auto w-20 shrink-0',
-                },
-            ]
-
-            if (items.value[0]) {
-                Object.keys(items.value[0])
-                    .toSorted()
-                    .forEach((k) => {
-                        result.push({
-                            name: k,
-                            label: k,
-                            class: 'w-96 flex-auto shrink-0',
-                        })
-                    })
-            }
-
-            return result
-        })
 
         const editableFields = computed(() => {
             return fields.value.filter((f) => {
                 if (['_checkbox'].includes(f.name)) return
 
-                return !f.name.startsWith('_')
+                return !f.readonly
             })
         })
 
         const readonlyFields = computed(() => {
-            return fields.value.filter((f) => f.name !== '_checkbox' && f.name.startsWith('_'))
+            return fields.value.filter((f) => f.readonly)
         })
 
         async function setItems() {
             items.value = await listItems(databaseId.value, collectionId.value)
         }
 
+        async function setFields() {
+            fields.value = await listProperties(databaseId.value, collectionId.value)
+            fields.value.sort((a, b) => (a.order || 99) - (b.order || 99))
+
+            fields.value.unshift({
+                name: '_checkbox',
+                class: 'flex-none w-20',
+            })
+        }
+
         watch(collection, setItems)
+        watch(collection, setFields)
 
         // create
         async function addItem() {
@@ -158,8 +147,8 @@ export default {
 					</div>
 				</template>
 				
-                <template v-for="field in readonlyFields" :key="field.name" #['item-'+field.name]="{ item }">
-					<div class="text-body-500 px-4 py-2">{{ item[field.name] }}</div>
+                <template v-for="field in readonlyFields" :key="field.name" #['item-'+field.name]="{ item, value }">
+					<div class="text-body-500 px-4 py-2">{{ value }}</div>
 				</template>
 
 				<template v-for="field in editableFields" :key="field.name" #['item-'+field.name]="{ item }">

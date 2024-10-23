@@ -1,7 +1,7 @@
 import { drive, resolve, decode, encode } from 'app:drive'
 
 export async function list({ collection }) {
-    const entries = await drive.list(collection.data_filepath)
+    const entries = await drive.list(collection.path)
     const items = []
 
     for await (const e of entries) {
@@ -18,7 +18,7 @@ export async function list({ collection }) {
 }
 
 export async function show({ collection, id }) {
-    const filename = resolve(collection.data_filepath, `${id}.json`)
+    const filename = resolve(collection.path, `${id}.json`)
 
     const entry = await drive.get(filename)
 
@@ -42,7 +42,7 @@ export async function create({ collection, payload }) {
         ...payload,
     }
 
-    const filename = resolve(collection.data_filepath, id + '.json')
+    const filename = resolve(collection.path, id + '.json')
 
     await drive.write(filename, encode(JSON.stringify(item, null, 4)))
 

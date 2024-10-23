@@ -9,9 +9,15 @@ export async function listCollections(databaseId) {
         throw new Error('Database not found')
     }
 
+    const folder = resolve(database.path, 'collections')
+
+    if (!(await drive.get(folder))) {
+        return []
+    }
+
     const collections = []
 
-    const entries = await drive.list(resolve(database.path, 'collections'))
+    const entries = await drive.list(folder)
 
     for await (const e of entries) {
         const configEntry = await drive.get(resolve(e.path, 'config.json'))
@@ -26,7 +32,8 @@ export async function listCollections(databaseId) {
 
         if (error) continue
 
-        json.path = e.path
+        json._path = e.path
+        json._id = e.name
 
         collections.push(json)
     }

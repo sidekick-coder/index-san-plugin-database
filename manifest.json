@@ -10,7 +10,7 @@
 	"pages": [
 		{
 			"name": "database",
-			"filename": "pages/Database.js"
+			"filename": "pages/DatabaseSingle.js"
 		},
 		{
 			"name": "database-item-list",

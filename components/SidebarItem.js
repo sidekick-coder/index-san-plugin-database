@@ -12,10 +12,15 @@ export default {
         const collections = ref([])
 
         const icon = computed(() => {
-            if (props.database.type === 'workspaceEntry') {
+            if (props.database.type === 'entry') {
                 return 'heroicons:folder-solid'
             }
-            return 'heroicons:folder-solid'
+
+            if (props.database.type === 'notion') {
+                return 'mage:notion'
+            }
+
+            return 'heroicons:circle-stack-16-solid'
         })
 
         async function setCollections() {
