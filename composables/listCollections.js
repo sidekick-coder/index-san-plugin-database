@@ -9,7 +9,7 @@ export async function listCollections(databaseId) {
         throw new Error('Database not found')
     }
 
-    const folder = resolve(database.path, 'collections')
+    const folder = resolve(database._path, 'collections')
 
     if (!(await drive.get(folder))) {
         return []

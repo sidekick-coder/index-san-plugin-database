@@ -24,7 +24,7 @@ export async function listDatabases() {
 
         if (error) continue
 
-        json.path = e.path
+        json._path = e.path
 
         databases.push(json)
     }

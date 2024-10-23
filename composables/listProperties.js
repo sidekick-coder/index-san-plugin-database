@@ -7,7 +7,13 @@ export async function listProperties(databaseId, collectionId) {
 
     const properties = []
 
-    const entries = await drive.list(resolve(collection._path, 'properties'))
+    const folder = resolve(collection._path, 'properties')
+
+    if (!(await drive.get(folder))) {
+        return properties
+    }
+
+    const entries = await drive.list(folder)
 
     for await (const e of entries) {
         const configEntry = await drive.get(resolve(e.path, 'config.json'))

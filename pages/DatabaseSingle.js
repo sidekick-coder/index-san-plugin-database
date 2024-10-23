@@ -64,7 +64,14 @@ export default {
         const syncing = ref(false)
 
         async function sync() {
+            syncing.value = true
+
             await syncDatabase(databaseId.value)
+
+            setTimeout(() => {
+                snackbar.success('Database synced')
+                syncing.value = false
+            }, 800)
         }
 
         return {
