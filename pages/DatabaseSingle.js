@@ -102,13 +102,13 @@ export default {
 				</is-card-content>
 			</is-card>
 
-   			<is-card v-if="database.type === 'notion'">
+   			<is-card v-if="database.type === 'api-provider'">
 				<is-card-head>
-					<is-card-title>Notion</is-card-title>
+					<is-card-title>API provider</is-card-title>
 				</is-card-head>
 
 				<is-card-content class="flex flex-col gap-y-4">
-					<is-text-field label="Notion key" v-model="database.notion_key" />
+					<is-text-field label="Provider id" v-model="database.provider_id" />
 				</is-card-content>
 				<is-card-content class="flex gap-2">
 					<is-btn @click="sync" :loading="syncing">Sync</is-btn>

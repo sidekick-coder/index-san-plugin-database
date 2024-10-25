@@ -14,13 +14,12 @@ export async function createDatabase(payload) {
         await drive.mkdir(folder)
     }
 
-    const filename = resolve(folder, payload.id)
-
-    if (await drive.get(filename)) {
-        throw new Error('Database id alredy in use')
-    }
-
-    await drive.write(filename, encode(JSON.stringify(payload, null, 4)))
+    await drive.mkdir(resolve(folder, payload.id))
+    await drive.mkdir(resolve(folder, payload.id, 'collections'))
+    await drive.write(
+        resolve(folder, payload.id, 'config.json'),
+        encode(JSON.stringify(payload, null, 4))
+    )
 
     emitHook('database:created', payload)
 

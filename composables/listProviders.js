@@ -6,6 +6,10 @@ const files = [
         id: 'entry',
         filename: resolve(__dirname, '../providers/entryProvider.js'),
     },
+    {
+        id: 'api',
+        filename: resolve(__dirname, '../providers/apiProvider.js'),
+    },
 ]
 
 export async function listProviders() {

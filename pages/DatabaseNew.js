@@ -14,6 +14,17 @@ export default {
             name: '',
         })
 
+        const types = [
+            {
+                value: 'entry',
+                label: 'Entry',
+            },
+            {
+                value: 'api-provider',
+                label: 'API provider',
+            },
+        ]
+
         async function submit() {
             try {
                 const database = await createDatabase(payload.value)
@@ -32,6 +43,7 @@ export default {
 
         return {
             payload,
+            types,
 
             submit,
         }
@@ -44,8 +56,12 @@ export default {
 				<div class="flex flex-col gap-y-4">
 					<is-text-field label="ID" v-model="payload.id" />
 					<is-text-field label="Name" v-model="payload.name" />
-					<is-text-field label="type" v-model="payload.type" readonly />
+					<is-text-field label="Icon" v-model="payload.icon" />
+
+					<is-select label="type" v-model="payload.type" :options="types" />
 					
+					<is-text-field v-if="payload.type === 'api-provider' " label="API provider id" v-model="payload.provider_id" />
+
 					<is-btn @click="submit" :disabled="!payload.id">Create</is-btn>
 				</div>
 			</is-card>

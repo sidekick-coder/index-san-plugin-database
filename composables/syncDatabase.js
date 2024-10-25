@@ -1,47 +1,37 @@
 import { showDatabase } from './showDatabase.js'
 import { drive, resolve, encode } from 'app:drive'
+import { api, isLogged } from 'app:api'
 
 export async function syncDatabase(databaseId) {
     const database = await showDatabase(databaseId)
 
-    if (!database.type === 'notion') return
-
-    const response = await fetch('http://localhost:3000/api/list-collections', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            type: 'notion',
-            notion_key: database.notion_key,
-        }),
-    })
-
-    const json = await response.json()
-
-    if (!json.data) return
-
-    const colletionsFolder = resolve(database._path, 'collections')
-
-    if (!(await drive.get(colletionsFolder))) {
-        await drive.mkdir(colletionsFolder)
+    if (!database.type === 'api-provider') {
+        throw new Error('Database type is not supported')
     }
 
-    for await (notionDB of json.data) {
-        const folder = resolve(colletionsFolder, notionDB.id)
+    if (!isLogged.value) {
+        throw new Error('You need to be logged in to sync databases')
+    }
+
+    const { data: notionDatabases } = await api(
+        `/api/providers/${database.provider_id}/collections`
+    )
+
+    for await (db of notionDatabases) {
+        const folder = resolve(database._path, 'collections', db.id)
 
         if (!(await drive.get(folder))) {
             await drive.mkdir(folder)
         }
 
         const config = {
-            type: 'notion',
-            id: notionDB.id,
-            name: notionDB.title[0].plain_text,
+            provider: 'api',
+            id: db.id,
+            name: db.title[0].plain_text,
         }
 
         await drive.write(resolve(folder, 'config.json'), encode(JSON.stringify(config, null, 4)))
-        await drive.write(resolve(folder, 'notion.json'), encode(JSON.stringify(notionDB, null, 4)))
+        await drive.write(resolve(folder, 'notion.json'), encode(JSON.stringify(db, null, 4)))
 
         const propertiesFolder = resolve(folder, 'properties')
 
@@ -49,8 +39,12 @@ export async function syncDatabase(databaseId) {
             await drive.mkdir(propertiesFolder)
         }
 
-        for await (property of Object.values(notionDB.properties)) {
-            const propertyFolder = resolve(propertiesFolder, property.id)
+        for await (property of Object.values(db.properties)) {
+            const hexId = Array.from(property.id)
+                .map((char) => char.charCodeAt(0).toString(16))
+                .join('')
+
+            const propertyFolder = resolve(propertiesFolder, hexId)
 
             if (!(await drive.get(propertyFolder))) {
                 await drive.mkdir(propertyFolder)
@@ -60,16 +54,13 @@ export async function syncDatabase(databaseId) {
                 id: property.id,
                 name: property.name,
                 label: property.name,
+                _path: propertyFolder,
+                _raw: property,
             }
 
             await drive.write(
                 resolve(propertyFolder, 'config.json'),
                 encode(JSON.stringify(propertyConfig, null, 4))
-            )
-
-            await drive.write(
-                resolve(propertyFolder, 'notion.json'),
-                encode(JSON.stringify(property, null, 4))
             )
         }
     }

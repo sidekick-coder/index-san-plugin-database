@@ -53,6 +53,7 @@ export default {
             icon,
 
             onClick,
+            setCollections,
         }
     },
     template: `
@@ -76,9 +77,21 @@ export default {
 					</is-btn>
 				</div>
 
-				<div class="ml-4 text-sm">
+				<div class="ml-4 text-sm grow">
 					{{ database.name }}
 				</div>
+
+                <is-btn
+                    size="none"
+                    color="none"
+                    class="p-1 hover:bg-body-500 relative opacity-0 group-hover:opacity-100"
+                    variant="text"
+                    @click.stop="setCollections"
+                >
+                    <is-icon
+                        name="heroicons:arrow-path"
+                    />
+                </is-btn>
 
 			</is-list-item>
 
