@@ -6,8 +6,6 @@ export async function listProperties({ collection }) {
 
     const folder = resolve(collection._path, 'properties')
 
-    console.log('folder', folder)
-
     if (!(await drive.get(folder))) {
         return properties
     }
@@ -36,7 +34,7 @@ export async function listProperties({ collection }) {
 }
 
 export async function list({ collection }) {
-    const entries = await drive.list(collection._path)
+    const entries = await drive.list(collection.path)
 
     const items = []
 

@@ -1,6 +1,5 @@
 import { useRoute, useRouter } from 'vue-router'
 import { ref, computed, watch } from 'vue'
-import { tryCatch } from 'app:utils'
 
 import dialog from 'app:dialog'
 import snackbar from 'app:snackbar'
@@ -15,7 +14,6 @@ import { listProperties } from '../composables/listProperties.js'
 export default {
     setup() {
         const route = useRoute()
-        const router = useRouter()
         const databaseId = computed(() => route.query.databaseId)
         const collectionId = computed(() => route.query.collectionId)
 
@@ -23,14 +21,15 @@ export default {
         const collection = ref(null)
         const saving = ref(false)
 
-        async function load() {
+        async function setCollection() {
             collection.value = await showCollection(databaseId.value, collectionId.value)
             original.value = JSON.parse(JSON.stringify(collection.value))
         }
 
-        watch(collectionId, load, { immediate: true })
+        watch(collectionId, setCollection, { immediate: true })
 
-        // table
+        // items
+        const loading = ref(false)
         const fields = ref([])
         const items = ref([])
         const selected = ref([])
@@ -61,8 +60,19 @@ export default {
             })
         }
 
-        watch(collection, setItems)
-        watch(collection, setFields)
+        async function load() {
+            loading.value = true
+            items.value = []
+            fields.value = []
+
+            await Promise.allSettled([setItems(), setFields()])
+
+            setTimeout(() => {
+                loading.value = false
+            }, 800)
+        }
+
+        watch([databaseId, collectionId], load, { immediate: true })
 
         // create
         async function addItem() {
@@ -71,12 +81,12 @@ export default {
             await setItems()
         }
 
-        async function setItem(itemId, payload) {
+        async function setItem(itemId) {
             const item = items.value.find((i) => i.id === itemId)
 
-            Object.assign(item, payload)
+            Object.assign(item)
 
-            await updateItem(databaseId.value, collectionId.value, itemId, payload)
+            await updateItem(databaseId.value, collectionId.value, itemId)
         }
 
         // delete
@@ -106,6 +116,7 @@ export default {
             collection,
             original,
             selected,
+            loading,
 
             fields,
             editableFields,
@@ -132,35 +143,31 @@ export default {
                 </div>
 			</is-card-head>
             
-            <div class="w-full overflow-x-auto flex">
-			    <is-data-table
-                    :items="items"
-                    :fields="fields"
-                    :item-class="i => ['hover:bg-body-800', selected.includes(i._id) ? 'bg-body-800' : '']"
-                    item-field-class="p-0"
-                    class="w-auto min-w-full"
-                >
+            <is-card-content
+                    class="flex flex-col overflow-y-auto"
+                    style="height: calc(100vh - 88px)"
+            >
+                <is-card v-if="loading" class="flex-1 flex items-center justify-center">
+                    <is-card-content>
+                        <is-spinner />
+                    </is-card-content>
+                </is-card>
+                
+                <is-card v-else-if="!items.length" class="flex-1 flex items-center justify-center">
+                    <is-card-content>
+                        No items found
+                    </is-card-content>
+                </is-card>
 
-				<template #item-_checkbox="{ item }">
-					<div class="flex items-center justify-center size-full">
-						<is-checkbox class="w-auto" v-model:multiple="selected" :item-value="item._id" />
-					</div>
-				</template>
-				
-                <template v-for="field in readonlyFields" :key="field.name" #['item-'+field.name]="{ item, value }">
-					<div class="text-body-500 px-4 py-2">{{ value }}</div>
-				</template>
+                <div v-else class="flex flex-col gap-y-2 over">
+                   <is-card v-for="i in items" :key="i.id" class="bg-body-800">
+                        <is-card-content>
+                            <pre v-text="JSON.stringify(i, null, 4)" />
+                        </is-card-content>
+                    </is-card>
+                </div>
 
-				<template v-for="field in editableFields" :key="field.name" #['item-'+field.name]="{ item }">
-					<input
-						:value="item[field.name]"
-						class="bg-transparent size-full py-2 px-4 outline-none focus:bg-body-500"
-						@change="setItem(item.id, { [field.name]: $event.target.value })"
-					/>
-				</template>
-
-			</is-data-table>
-            </div>
+            </is-card-content>
 		</is-card>
 	`,
 }
