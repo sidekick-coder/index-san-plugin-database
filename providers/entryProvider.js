@@ -1,7 +1,43 @@
 import { drive, resolve, decode, encode } from 'app:drive'
+import { tryCatch } from 'app:utils'
+
+export async function listProperties({ collection }) {
+    const properties = []
+
+    const folder = resolve(collection._path, 'properties')
+
+    console.log('folder', folder)
+
+    if (!(await drive.get(folder))) {
+        return properties
+    }
+
+    const entries = await drive.list(folder)
+
+    for await (const e of entries) {
+        const configEntry = await drive.get(resolve(e.path, 'config.json'))
+
+        if (!configEntry) continue
+
+        const [json, error] = await tryCatch(async () => {
+            const contents = await drive.read(configEntry.path)
+
+            return JSON.parse(decode(contents))
+        })
+
+        if (error) continue
+
+        json._path = e.path
+
+        properties.push(json)
+    }
+
+    return properties
+}
 
 export async function list({ collection }) {
-    const entries = await drive.list(collection.path)
+    const entries = await drive.list(collection._path)
+
     const items = []
 
     for await (const e of entries) {

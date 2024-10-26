@@ -1,37 +1,16 @@
-import { drive, resolve, decode } from 'app:drive'
-import { tryCatch } from 'app:utils'
 import { showCollection } from './showCollection.js'
+import { showDatabase } from './showDatabase.js'
+import { showProvider } from './showProvider.js'
 
 export async function listProperties(databaseId, collectionId) {
     const collection = await showCollection(databaseId, collectionId)
+    const database = await showDatabase(databaseId)
 
-    const properties = []
+    const provider = await showProvider(collection.provider)
 
-    const folder = resolve(collection._path, 'properties')
-
-    if (!(await drive.get(folder))) {
-        return properties
+    if (!provider) {
+        throw new Error('Collection provider not found')
     }
 
-    const entries = await drive.list(folder)
-
-    for await (const e of entries) {
-        const configEntry = await drive.get(resolve(e.path, 'config.json'))
-
-        if (!configEntry) continue
-
-        const [json, error] = await tryCatch(async () => {
-            const contents = await drive.read(configEntry.path)
-
-            return JSON.parse(decode(contents))
-        })
-
-        if (error) continue
-
-        json._path = e.path
-
-        properties.push(json)
-    }
-
-    return properties
+    return provider.listProperties({ database, collection })
 }

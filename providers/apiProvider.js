@@ -1,53 +1,24 @@
 import { drive, resolve, decode, encode } from 'app:drive'
 import { api } from 'app:api'
-import { get } from 'app:utils'
+import {
+    parseNotionPageToDatabaseItem,
+    parseNotionPropertyToDatabaseProperty,
+} from '../parsers/notionParser.js'
 
-export function parse({ item, properties }) {
-    const result = {}
+export async function listProperties({ database, collection }) {
+    const response = await api(
+        `/api/providers/${database.provider_id}/collections/${collection.id}/properties`
+    )
 
-    for (const p of properties) {
-        const raw = p._raw
-        const itemProperty = Object.values(item.properties).find((i) => i.id === raw.id)
-
-        if (raw.type === 'title') {
-            result[p.name] = get(itemProperty, `title[0].plain_text`)
-            continue
-        }
-
-        if (raw.type === 'status') {
-            result[p.name] = get(itemProperty, `status.name`)
-            continue
-        }
-
-        if (raw.type === 'date') {
-            result[p.name] = get(itemProperty, `date.start`)
-            continue
-        }
-
-        if (raw.type === 'formula') {
-            result[p.name] = get(itemProperty, `formula.${itemProperty.formula?.type}`)
-            continue
-        }
-
-        if (raw.type === 'relation') {
-            result[p.name] = get(itemProperty, 'relation', [])
-                .map((r) => r.id)
-                .join(', ')
-            continue
-        }
-
-        result[p.name] = '[unsupported]'
-    }
-
-    return result
+    return response.data.map((payload) => parseNotionPropertyToDatabaseProperty({ payload }))
 }
 
 export async function list({ collection, database, properties }) {
     const response = await api(
-        `/api/providers/${database.provider_id}/items?database_id=${collection.id}`
+        `/api/providers/${database.provider_id}/collections/${collection.id}/items`
     )
 
-    return response.data.map((i) => parse({ item: i, properties }))
+    return response.data.map((payload) => parseNotionPageToDatabaseItem({ payload, properties }))
 }
 
 export async function show({ collection, id }) {
