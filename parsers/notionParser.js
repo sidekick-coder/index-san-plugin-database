@@ -50,3 +50,25 @@ export function parseNotionPageToDatabaseItem({ payload, properties }) {
 
     return result
 }
+
+export function parseDatabaseItemToNotionPage({ payload, properties }) {
+    const result = {}
+
+    for (const p of properties) {
+        if (p.type === 'title') {
+            result[p.name] = {
+                title: [
+                    {
+                        type: 'text',
+                        text: {
+                            content: payload[p.name],
+                        },
+                    },
+                ],
+            }
+            continue
+        }
+    }
+
+    return result
+}

@@ -10,9 +10,19 @@ export async function updateItem(databaseId, collectionId, itemId, payload) {
         throw new Error('Collection provider not found')
     }
 
-    return provider.update({
+    const result = await provider.update({
         collection,
         id: itemId,
         payload,
     })
+
+    console.debug('[database] update-item', {
+        databaseId,
+        collectionId,
+        itemId,
+        payload,
+        result,
+    })
+
+    return result
 }

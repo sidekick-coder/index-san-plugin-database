@@ -1,5 +1,6 @@
 import { drive, resolve, decode, encode } from 'app:drive'
 import { tryCatch } from 'app:utils'
+import { importJson, writeJson } from 'app:hecate'
 
 export async function listProperties({ collection }) {
     const properties = []
@@ -17,13 +18,7 @@ export async function listProperties({ collection }) {
 
         if (!configEntry) continue
 
-        const [json, error] = await tryCatch(async () => {
-            const contents = await drive.read(configEntry.path)
-
-            return JSON.parse(decode(contents))
-        })
-
-        if (error) continue
+        const json = await importJson(configEntry.path)
 
         json._path = e.path
 
@@ -39,11 +34,10 @@ export async function list({ collection }) {
     const items = []
 
     for await (const e of entries) {
-        const text = await drive.read(e.path).then(decode)
-        const json = JSON.parse(text)
+        const json = await importJson(e.path)
 
         json._id = e.name.replace('.json', '')
-        json._filename = e.path
+        json._path = e.path
 
         items.push(json)
     }
@@ -58,12 +52,10 @@ export async function show({ collection, id }) {
 
     if (!entry) return null
 
-    const contents = await drive.read(filename)
-
-    const json = JSON.parse(decode(contents))
+    const json = await importJson(entry.path)
 
     json._id = entry.name.replace('.json', '')
-    json._filename = entry.path
+    json._path = entry.path
 
     return json
 }
@@ -71,23 +63,29 @@ export async function show({ collection, id }) {
 export async function create({ collection, payload }) {
     const id = window.crypto.randomUUID()
 
-    const item = {
-        id,
-        ...payload,
-    }
-
     const filename = resolve(collection.path, id + '.json')
 
-    await drive.write(filename, encode(JSON.stringify(item, null, 4)))
+    await writeJson(filename, payload)
 
     return item
 }
 
 export async function update({ id, payload, collection }) {
     const item = await show({ collection, id })
-    const filename = item.path
 
-    Object.assign(item, payload, { _id: id, _filename: filename })
+    if (!item) return
+
+    const filename = item._path
+
+    Object.assign(item, payload, { _id: undefined, _path: undefined })
+
+    // remove properties with _ prefix
+
+    for (const key in item) {
+        if (key.startsWith('_')) {
+            delete item[key]
+        }
+    }
 
     await drive.write(filename, encode(JSON.stringify(item, null, 4)))
 }
@@ -95,5 +93,5 @@ export async function update({ id, payload, collection }) {
 export async function destroy({ collection, id }) {
     const item = await show({ collection, id })
 
-    await drive.destroy(item._filename)
+    await drive.destroy(item._path)
 }

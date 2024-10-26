@@ -1,6 +1,7 @@
 import { drive, resolve, decode, encode } from 'app:drive'
 import { api } from 'app:api'
 import {
+    parseDatabaseItemToNotionPage,
     parseNotionPageToDatabaseItem,
     parseNotionPropertyToDatabaseProperty,
 } from '../parsers/notionParser.js'
@@ -21,49 +22,52 @@ export async function list({ collection, database, properties }) {
     return response.data.map((payload) => parseNotionPageToDatabaseItem({ payload, properties }))
 }
 
-export async function show({ collection, id }) {
-    const filename = resolve(collection.path, `${id}.json`)
+export async function show({ collection, database, id }) {
+    const response = await api(
+        `/api/providers/${database.provider_id}/collections/${collection.id}/items/${id}`
+    )
 
-    const entry = await drive.get(filename)
-
-    if (!entry) return null
-
-    const contents = await drive.read(filename)
-
-    const json = JSON.parse(decode(contents))
-
-    json._id = entry.name.replace('.json', '')
-    json._filename = entry.path
-
-    return json
+    return response.data
 }
 
-export async function create({ collection, payload }) {
-    const id = window.crypto.randomUUID()
+export async function create({ collection, database, properties, payload }) {
+    const serializedPayload = parseDatabaseItemToNotionPage({
+        properties,
+        database,
+        collection,
+        payload,
+    })
 
-    const item = {
-        id,
-        ...payload,
-    }
+    const response = await api(
+        `/api/providers/${database.provider_id}/collections/${collection.id}/items`,
+        {
+            method: 'POST',
+            body: serializedPayload,
+        }
+    )
 
-    const filename = resolve(collection.path, id + '.json')
-
-    await drive.write(filename, encode(JSON.stringify(item, null, 4)))
-
-    return item
+    return response.data
 }
 
 export async function update({ id, payload, collection }) {
-    const item = await show({ collection, id })
-    const filename = item.path
+    const response = await api(
+        `/api/providers/${collection.provider_id}/collections/${collection.id}/items/${id}`,
+        {
+            method: 'PATCH',
+            body: JSON.stringify(payload),
+        }
+    )
 
-    Object.assign(item, payload, { _id: id, _filename: filename })
-
-    await drive.write(filename, encode(JSON.stringify(item, null, 4)))
+    return response.data
 }
 
 export async function destroy({ collection, id }) {
-    const item = await show({ collection, id })
+    const response = await api(
+        `/api/providers/${collection.provider_id}/collections/${collection.id}/items/${id}`,
+        {
+            method: 'DELETE',
+        }
+    )
 
-    await drive.destroy(item._filename)
+    return response.data
 }

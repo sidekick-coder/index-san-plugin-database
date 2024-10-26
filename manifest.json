@@ -28,5 +28,12 @@
 			"label": "Database",
 			"filename": "components/Sidebar.js"
 		}
-	]
+	],
+    "components": [
+        {
+            "name": "collection-table",
+            "icon": "heroicons:table-cells",
+            "filename": "components/CollectionTable.js"
+        }
+    ]
 }
