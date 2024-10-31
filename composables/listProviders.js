@@ -1,7 +1,7 @@
 import { resolve } from 'app:drive'
 import { importJS } from 'app:hecate'
 
-const files = [
+export const providerFiles = [
     {
         id: 'entry',
         filename: resolve(__dirname, '../providers/entryProvider.js'),
@@ -15,7 +15,7 @@ const files = [
 export async function listProviders() {
     const providers = []
 
-    for await (const f of files) {
+    for await (const f of providerFiles) {
         const moduleDef = await importJS(f.filename)
 
         const provider = {

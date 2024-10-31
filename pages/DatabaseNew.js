@@ -1,8 +1,9 @@
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { createDatabase } from '../composables/createDatabase.js'
 
 import snackbar from 'app:snackbar'
+import { listProviders } from '../composables/listProviders.js'
 
 export default {
     setup() {
@@ -14,16 +15,14 @@ export default {
             name: '',
         })
 
-        const types = [
-            {
-                value: 'entry',
-                label: 'Entry',
-            },
-            {
-                value: 'api-provider',
-                label: 'API provider',
-            },
-        ]
+        // providers
+        const providers = ref([])
+
+        async function setProviders() {
+            providers.value = await listProviders()
+        }
+
+        onMounted(setProviders)
 
         async function submit() {
             try {
@@ -43,7 +42,7 @@ export default {
 
         return {
             payload,
-            types,
+            providers,
 
             submit,
         }
@@ -58,7 +57,7 @@ export default {
 					<is-text-field label="Name" v-model="payload.name" />
 					<is-text-field label="Icon" v-model="payload.icon" />
 
-					<is-select label="type" v-model="payload.type" :options="types" />
+					<is-select label="Provider" v-model="payload.provider" :options="providers" label-key="id" value-key="id" />
 					
 					<is-text-field v-if="payload.type === 'api-provider' " label="API provider id" v-model="payload.provider_id" />
 
