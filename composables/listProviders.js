@@ -4,11 +4,18 @@ import { importJS } from 'app:hecate'
 export const providerFiles = [
     {
         id: 'entry',
+        label: 'Entry',
         filename: resolve(__dirname, '../providers/entryProvider.js'),
     },
     {
         id: 'api',
+        label: 'API',
         filename: resolve(__dirname, '../providers/apiProvider.js'),
+    },
+    {
+        id: 'custom',
+        label: 'Custom',
+        filename: resolve(__dirname, '../providers/customProvider.js'),
     },
 ]
 
@@ -19,7 +26,7 @@ export async function listProviders() {
         const moduleDef = await importJS(f.filename)
 
         const provider = {
-            id: f.id,
+            ...f,
             ...moduleDef,
         }
 

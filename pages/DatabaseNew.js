@@ -57,9 +57,26 @@ export default {
 					<is-text-field label="Name" v-model="payload.name" />
 					<is-text-field label="Icon" v-model="payload.icon" />
 
-					<is-select label="Provider" v-model="payload.provider" :options="providers" label-key="id" value-key="id" />
+					<is-select
+                        label="Provider"
+                        v-model="payload.provider"
+                        :options="providers"
+                        label-key="label"
+                        value-key="id"
+                    />
 					
-					<is-text-field v-if="payload.type === 'api-provider' " label="API provider id" v-model="payload.provider_id" />
+					<is-text-field
+                        v-if="payload.provider === 'api'"
+                        label="API provider id"
+                        v-model="payload.provider_id"
+                    />
+
+  					<is-text-field
+                        v-if="payload.provider === 'custom'"
+                        label="Filename"
+                        v-model="payload.filename"
+                    />
+
 
 					<is-btn @click="submit" :disabled="!payload.id">Create</is-btn>
 				</div>

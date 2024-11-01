@@ -8,10 +8,10 @@ export async function listItems(databaseId, collectionId) {
     const collection = await showCollection(databaseId, collectionId)
     const properties = await listProperties(databaseId, collectionId)
 
-    const provider = await showProvider(collection.provider)
+    const provider = await showProvider(database.provider)
 
     if (!provider) {
-        throw new Error('Collection provider not found')
+        throw new Error('Provider not found')
     }
 
     return provider.list({

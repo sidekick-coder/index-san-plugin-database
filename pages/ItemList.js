@@ -1,8 +1,9 @@
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { ref, computed, watch } from 'vue'
 
 import dialog from 'app:dialog'
 import snackbar from 'app:snackbar'
+import { tryCatch } from 'app:utils'
 
 import { showCollection } from '../composables/showCollection.js'
 import { createItem } from '../composables/createItem.js'
@@ -47,7 +48,13 @@ export default {
         })
 
         async function setItems() {
-            items.value = await listItems(databaseId.value, collectionId.value)
+            const [resonse, error] = await tryCatch(() =>
+                listItems(databaseId.value, collectionId.value)
+            )
+
+            if (error) console.error(error)
+
+            items.value = resonse || []
         }
 
         async function setFields() {
