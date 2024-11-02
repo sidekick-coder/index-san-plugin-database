@@ -21,7 +21,7 @@
 		},
 		{
 			"name": "database-new",
-			"filename": "pages/DatabaseNew.js"
+			"filename": "pages/DatabaseNew.vue"
 		}
 	],
 	"menu": [

@@ -1,4 +1,3 @@
-// @hecate debug
 import { createItem } from './composables/createItem.js'
 import { destroyItem } from './composables/destroyItem.js'
 import { listItems } from './composables/listItems.js'
