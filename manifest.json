@@ -13,7 +13,7 @@
 	"pages": [
 		{
 			"name": "database",
-			"filename": "pages/DatabaseSingle.js"
+			"filename": "pages/DatabaseSingle.vue"
 		},
 		{
 			"name": "database-item-list",
@@ -29,7 +29,7 @@
 			"icon": "heroicons:circle-stack-solid",
 			"name": "database",
 			"label": "Database",
-			"filename": "components/Sidebar.js"
+			"filename": "components/Sidebar.vue"
 		}
 	],
     "components": [
