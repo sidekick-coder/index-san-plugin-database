@@ -3,20 +3,23 @@ import { showDatabase } from './showDatabase.js'
 
 import { onHook, offHook } from 'app:hook'
 
-export function useDatabase(id) {
+export function useDatabase(payloadId = null) {
+    const id = ref(payloadId)
     const database = ref(null)
     const loading = ref(false)
 
     async function load() {
         loading.value = true
 
-        database.value = await showDatabase(id)
+        database.value = await showDatabase(id.value)
 
-        loading.value = false
+        setTimeout(() => {
+            loading.value = false
+        }, 800)
     }
 
     async function refresh() {
-        const newDatabase = await showDatabase(id)
+        const newDatabase = await showDatabase(id.value)
 
         if (JSON.stringify(newDatabase) !== JSON.stringify(database.value)) {
             database.value = newDatabase
@@ -24,7 +27,7 @@ export function useDatabase(id) {
     }
 
     function onDatabaseUpdated({ id: updatedId }) {
-        if (updatedId === id) {
+        if (updatedId === id.value) {
             refresh()
         }
     }
@@ -34,6 +37,7 @@ export function useDatabase(id) {
     onUnmounted(() => offHook('database:updated', onDatabaseUpdated))
 
     return {
+        id,
         database: readonly(database),
         loading,
 

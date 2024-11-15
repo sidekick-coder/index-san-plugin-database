@@ -1,16 +1,15 @@
-import { drive, resolve } from 'app:drive'
+import { drive } from 'app:drive'
 import { emitHook } from 'app:hook'
+import { showDatabase } from './showDatabase.js'
 
 export async function destroyDatabase(id) {
-    const folder = '.is/databases'
+    const database = await showDatabase(id)
 
-    const filename = resolve(folder, id)
-
-    if (!(await drive.get(filename))) {
+    if (!database) {
         throw new Error('Database not found')
     }
 
-    await drive.destroy(filename)
+    await drive.destroy(database._path)
 
     emitHook('database:deleted', { id })
 }

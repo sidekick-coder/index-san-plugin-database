@@ -1,10 +1,12 @@
 <script setup>
 import { useRoute } from 'vue-router'
-import { ref, computed, onMounted } from 'vue'
+import { computed, watch, shallowRef } from 'vue'
 
 import DatabaseIcon from '../components/DatabaseIcon.vue'
 
 import DatabaseSingleGeneral from './DatabaseSingleGeneral.vue'
+import DatabaseSingleSettings from './DatabaseSingleSettings.vue'
+
 import { useDatabase } from '../composables/useDatabase.js'
 
 // general
@@ -12,26 +14,42 @@ const route = useRoute()
 
 // database
 const databaseId = computed(() => route.query.databaseId)
-const { database, loading, load } = useDatabase(databaseId.value)
+const { id, database, loading, load } = useDatabase()
 
-onMounted(load)
+watch(
+    databaseId,
+    () => {
+        id.value = databaseId.value
 
-const tabs = [
-    {
-        label: 'General',
-        value: 'general',
-        component: DatabaseSingleGeneral,
+        load()
     },
-    {
+    { immediate: true }
+)
+
+const tabs = shallowRef([])
+
+function setTabs() {
+    tabs.value = [
+        {
+            label: 'General',
+            value: 'general',
+            component: DatabaseSingleGeneral,
+        },
+    ]
+
+    tabs.value.push({
         label: 'Collections',
         value: 'collections',
-        component: 'div',
-    },
-    {
+    })
+
+    tabs.value.push({
         label: 'Settings',
         value: 'settings',
-    },
-]
+        component: DatabaseSingleSettings,
+    })
+}
+
+watch(database, setTabs)
 </script>
 
 <template>

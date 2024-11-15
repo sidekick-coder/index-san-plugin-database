@@ -47,13 +47,13 @@ onMounted(setDatabase)
 </script>
 <template>
     <div class="p-4">
-        <is-card v-if="database" class="px-4 py-5" color="body-800">
+        <is-card v-if="database" color="body-800">
             <is-card-head>
                 <is-card-title> General </is-card-title>
             </is-card-head>
             <is-card-content class="flex flex-col gap-y-4">
                 <is-text-field v-model="database.id" label="ID" readonly />
-                <is-text-field v-model="database.type" label="Type" readonly />
+                <is-text-field v-model="database.provider" label="Provider" readonly />
 
                 <is-text-field v-model="database.label" label="Label" />
                 <is-text-field v-model="database.description" label="Description" />
