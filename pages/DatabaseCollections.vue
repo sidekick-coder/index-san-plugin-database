@@ -7,6 +7,7 @@ import snackbar from 'app:snackbar'
 import { listCollections } from '../composables/listCollections.js'
 
 import CollectionIcon from '../components/CollectionIcon.vue'
+import CollectionDialog from '../components/CollectionDialog.vue'
 import { useDatabase } from '../composables/useDatabase.js'
 
 // general
@@ -55,9 +56,16 @@ async function setItems() {
 }
 
 onMounted(setItems)
+
+// dialog
+const showDialog = ref(false)
+
+function onNewCollection() {
+    setItems()
+}
 </script>
 <template>
-    <div class="p-4">
+    <div v-if="database" class="p-4">
         <is-card color="body-800">
             <is-card-head class="flex">
                 <div class="flex-1">
@@ -66,9 +74,17 @@ onMounted(setItems)
                 </div>
 
                 <div v-if="database?.capabilities?.includes('collection.create')">
-                    <is-btn>Add new</is-btn>
+                    <is-btn @click="showDialog = true">Add new</is-btn>
                 </div>
             </is-card-head>
+
+            <collection-dialog
+                v-model="showDialog"
+                :database-id="props.databaseId"
+                :provider="database.provider"
+                @submit="onNewCollection"
+            />
+
             <is-data-table :items :loading :fields>
                 <template #item-name="{ value, item }">
                     <div class="flex items-center">

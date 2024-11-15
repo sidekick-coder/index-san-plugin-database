@@ -6,9 +6,10 @@ export async function listCollections(databaseId) {
 
     const provider = await showProvider(database.provider)
 
-    if (!provider?.listCollections) {
+    if (!provider?.collection?.list) {
+        console.error('[database] provider does not support listing collections')
         return []
     }
 
-    return provider.listCollections({ database })
+    return provider.collection.list({ database })
 }

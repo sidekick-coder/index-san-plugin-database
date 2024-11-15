@@ -1,5 +1,6 @@
 import { drive, resolve, decode } from 'app:drive'
 import { tryCatch } from 'app:utils'
+import { showProvider } from './showProvider.js'
 
 export async function listDatabases() {
     const folder = '.is/databases'
@@ -26,6 +27,10 @@ export async function listDatabases() {
 
         json.id = e.name
         json._path = e.path
+
+        const provider = await showProvider(json.provider)
+
+        json.capabilities = provider.capabilities || []
 
         databases.push(json)
     }

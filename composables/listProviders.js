@@ -5,7 +5,7 @@ export const providerFiles = [
     {
         id: 'entry',
         label: 'Entry',
-        filename: resolve(__dirname, '../providers/entryProvider.js'),
+        filename: resolve(__dirname, '../providers/entry/index.js'),
     },
     {
         id: 'api',
@@ -15,7 +15,7 @@ export const providerFiles = [
     {
         id: 'custom',
         label: 'Custom',
-        filename: resolve(__dirname, '../providers/customProvider.js'),
+        filename: resolve(__dirname, '../providers/custom/index.js'),
     },
 ]
 

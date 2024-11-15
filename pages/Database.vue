@@ -78,7 +78,7 @@ watch(database, setTabs)
             <is-tabs :items="tabs">
                 <template #item="{ item }">
                     <div class="border-t border-body-500 bg-body-700">
-                        <component :is="item.component" :database-id />
+                        <component :is="item.component" :database-id :database />
                     </div>
                 </template>
             </is-tabs>

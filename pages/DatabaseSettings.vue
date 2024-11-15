@@ -13,6 +13,10 @@ const props = defineProps({
         type: String,
         required: true,
     },
+    database: {
+        type: Object,
+        default: () => ({}),
+    },
 })
 
 const router = useRouter()
@@ -41,6 +45,21 @@ async function destroy() {
 </script>
 <template>
     <div class="p-4">
+        <is-card v-if="database.capabilities">
+            <is-card-head>
+                <is-card-title>Capabilities</is-card-title>
+            </is-card-head>
+
+            <is-card-content>
+                <is-checkbox
+                    v-for="capability in database.capabilities"
+                    :key="capability"
+                    :label="capability"
+                    :model-value="true"
+                />
+            </is-card-content>
+        </is-card>
+
         <is-card>
             <is-card-head class="flex-col items-start">
                 <is-card-title>Delete</is-card-title>
