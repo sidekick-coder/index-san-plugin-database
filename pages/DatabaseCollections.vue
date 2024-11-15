@@ -1,13 +1,15 @@
 <script setup>
 import { useRouter } from 'vue-router'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 
 import dialog from 'app:dialog'
 import snackbar from 'app:snackbar'
-import { tryCatch } from 'app:utils'
+import { listCollections } from '../composables/listCollections.js'
 
-import { destroyDatabase } from '../composables/destroyDatabase.js'
+import CollectionIcon from '../components/CollectionIcon.vue'
+import { useDatabase } from '../composables/useDatabase.js'
 
+// general
 const props = defineProps({
     databaseId: {
         type: String,
@@ -16,42 +18,81 @@ const props = defineProps({
 })
 
 const router = useRouter()
+
+// database
+const { database, load } = useDatabase(props.databaseId)
+
+onMounted(load)
+
+// data
 const loading = ref(false)
+const items = ref([])
+const fields = ref([
+    {
+        name: 'name',
+        label: 'Name',
+        value: 'name',
+    },
+    {
+        name: 'description',
+        label: 'Description',
+        value: 'description',
+    },
+    {
+        name: 'actions',
+        class: 'max-w-40',
+    },
+])
 
-async function destroy() {
-    if (!(await dialog.confirm())) return
-
+async function setItems() {
     loading.value = true
 
-    const [, error] = await tryCatch(() => destroyDatabase(props.databaseId))
-
-    if (error) {
-        snackbar.error(error.message)
-        loading.value = false
-        return
-    }
+    items.value = await listCollections(props.databaseId)
 
     setTimeout(() => {
         loading.value = false
-        snackbar.success('Database deleted')
-
-        router.push({ name: 'app-page', params: { name: 'databases' } })
     }, 800)
 }
+
+onMounted(setItems)
 </script>
 <template>
     <div class="p-4">
-        <is-card>
-            <is-card-head class="flex-col items-start">
-                <is-card-title>Delete</is-card-title>
-                <is-card-subtitle>
-                    This will delete database declaration only, data will be keeped
-                </is-card-subtitle>
-            </is-card-head>
+        <is-card color="body-800">
+            <is-card-head class="flex">
+                <div class="flex-1">
+                    <is-card-title>Collections</is-card-title>
+                    <is-card-subtitle>Manage your collections</is-card-subtitle>
+                </div>
 
-            <is-card-content>
-                <is-btn color="danger" :loading @click="destroy">Delete database</is-btn>
-            </is-card-content>
+                <div v-if="database?.capabilities?.includes('collection.create')">
+                    <is-btn>Add new</is-btn>
+                </div>
+            </is-card-head>
+            <is-data-table :items :loading :fields>
+                <template #item-name="{ value, item }">
+                    <div class="flex items-center">
+                        <collection-icon :collection="item" class="mr-2" />
+                        <span>{{ value }}</span>
+                    </div>
+                </template>
+
+                <template #item-actions="{ item }">
+                    <is-btn
+                        size="none"
+                        color="none"
+                        class="p-1 hover:bg-body-500"
+                        variant="text"
+                        :to="{
+                            name: 'app-page',
+                            params: { name: 'collection' },
+                            query: { databaseId: props.databaseId, collectionId: item.id },
+                        }"
+                    >
+                        <is-icon name="heroicons:chevron-right-solid" />
+                    </is-btn>
+                </template>
+            </is-data-table>
         </is-card>
     </div>
 </template>

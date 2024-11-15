@@ -6,6 +6,7 @@ import DatabaseIcon from '../components/DatabaseIcon.vue'
 
 import DatabaseGeneral from './DatabaseGeneral.vue'
 import DatabaseSettings from './DatabaseSettings.vue'
+import DatabaseCollections from './DatabaseCollections.vue'
 
 import { useDatabase } from '../composables/useDatabase.js'
 
@@ -40,6 +41,7 @@ function setTabs() {
     tabs.value.push({
         label: 'Collections',
         value: 'collections',
+        component: DatabaseCollections,
     })
 
     tabs.value.push({
