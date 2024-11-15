@@ -2,27 +2,36 @@
 import { useRoute } from 'vue-router'
 import { ref, computed, onMounted } from 'vue'
 
-import { showDatabase } from '../composables/showDatabase.js'
+import DatabaseIcon from '../components/DatabaseIcon.vue'
+
+import DatabaseSingleGeneral from './DatabaseSingleGeneral.vue'
+import { useDatabase } from '../composables/useDatabase.js'
 
 // general
 const route = useRoute()
 
 // database
 const databaseId = computed(() => route.query.databaseId)
-const loading = ref(true)
-const database = ref()
+const { database, loading, load } = useDatabase(databaseId.value)
 
-async function setDatabase() {
-    loading.value = true
+onMounted(load)
 
-    database.value = await showDatabase(databaseId.value)
-
-    setTimeout(() => {
-        loading.value = false
-    }, 1000)
-}
-
-onMounted(setDatabase)
+const tabs = [
+    {
+        label: 'General',
+        value: 'general',
+        component: DatabaseSingleGeneral,
+    },
+    {
+        label: 'Collections',
+        value: 'collections',
+        component: 'div',
+    },
+    {
+        label: 'Settings',
+        value: 'settings',
+    },
+]
 </script>
 
 <template>
@@ -30,16 +39,30 @@ onMounted(setDatabase)
         <is-spinner />
     </div>
 
-    <div v-else class="py-5">
-        <div class="flex -mx-4">
-            <div class="w-4/12 px-4">
-                <is-card>
-                    <h1>{{ database.label }}</h1>
-                </is-card>
-            </div>
-            <div class="w-8/12 px-4">
-                <is-card>sections</is-card>
-            </div>
-        </div>
+    <div v-else-if="database">
+        <is-card>
+            <is-card-head>
+                <database-icon :database="database" class="mr-4 text-2xl" />
+
+                <div>
+                    <is-card-title>
+                        {{ database.label }}
+                    </is-card-title>
+
+                    <is-card-subtitle v-if="database.description">
+                        {{ database.description }}
+                    </is-card-subtitle>
+                </div>
+            </is-card-head>
+
+            <is-tabs :items="tabs">
+                <template #item="{ item }">
+                    <div class="border-t border-body-500 bg-body-700">
+                        <component :is="item.component" :database-id />
+                    </div>
+                </template>
+            </is-tabs>
+        </is-card>
+        <div></div>
     </div>
 </template>

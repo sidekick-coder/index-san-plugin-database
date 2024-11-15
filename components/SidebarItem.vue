@@ -1,7 +1,9 @@
 <script setup>
 import { useRouter, useRoute } from 'vue-router'
-import { ref, watch, computed, onMounted } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { listCollections } from '../composables/listCollections.js'
+
+import DatabaseIcon from '../components/DatabaseIcon.vue'
 
 const props = defineProps(['database'])
 const router = useRouter()
@@ -9,18 +11,6 @@ const route = useRoute()
 
 const show = ref(false)
 const collections = ref([])
-
-const icon = computed(() => {
-    if (props.database.type === 'entry') {
-        return 'heroicons:folder-solid'
-    }
-
-    if (props.database.type === 'notion') {
-        return 'mage:notion'
-    }
-
-    return 'heroicons:circle-stack-16-solid'
-})
 
 async function setCollections() {
     collections.value = await listCollections(props.database.id)
@@ -56,7 +46,7 @@ onMounted(() => {
                 variant="text"
                 @click.stop="show = !show"
             >
-                <is-icon :name="icon" class="relative group-hover:opacity-0" />
+                <database-icon :database="database" class="relative group-hover:opacity-0" />
 
                 <is-icon
                     name="heroicons:chevron-right-solid"

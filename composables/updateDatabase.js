@@ -14,5 +14,8 @@ export async function updateDatabase(id, payload) {
 
     await drive.write(configFilename, encode(JSON.stringify(payload, null, 4)))
 
-    emitHook('database:updated', payload)
+    emitHook('database:updated', {
+        id,
+        payload,
+    })
 }
