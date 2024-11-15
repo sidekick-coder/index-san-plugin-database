@@ -4,8 +4,8 @@ import { computed, watch, shallowRef } from 'vue'
 
 import DatabaseIcon from '../components/DatabaseIcon.vue'
 
-import DatabaseSingleGeneral from './DatabaseSingleGeneral.vue'
-import DatabaseSingleSettings from './DatabaseSingleSettings.vue'
+import DatabaseGeneral from './DatabaseGeneral.vue'
+import DatabaseSettings from './DatabaseSettings.vue'
 
 import { useDatabase } from '../composables/useDatabase.js'
 
@@ -33,7 +33,7 @@ function setTabs() {
         {
             label: 'General',
             value: 'general',
-            component: DatabaseSingleGeneral,
+            component: DatabaseGeneral,
         },
     ]
 
@@ -45,7 +45,7 @@ function setTabs() {
     tabs.value.push({
         label: 'Settings',
         value: 'settings',
-        component: DatabaseSingleSettings,
+        component: DatabaseSettings,
     })
 }
 

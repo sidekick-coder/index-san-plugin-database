@@ -13,7 +13,7 @@
 	"pages": [
 		{
 			"name": "database",
-			"filename": "pages/DatabaseSingle.vue"
+			"filename": "pages/Database.vue"
 		},
 		{
 			"name": "database-item-list",
