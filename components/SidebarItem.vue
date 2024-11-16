@@ -20,7 +20,7 @@ function onClick() {
     router.push({
         name: 'app-page',
         params: { name: 'database' },
-        query: { databaseId: props.database.id },
+        query: { databaseId: props.database._id },
     })
 }
 

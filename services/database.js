@@ -27,12 +27,12 @@ export async function listDatabases() {
 
         if (error) continue
 
-        json.id = e.name
-        json._path = e.path
-
         const provider = await showProvider(json.provider)
 
-        json.capabilities = provider.capabilities || []
+        json._id = e.name
+        json._path = e.path
+        json._provider = provider
+        json._capabilities = provider.capabilities || []
 
         databases.push(json)
     }
@@ -43,7 +43,7 @@ export async function listDatabases() {
 export async function showDatabase(id) {
     const databases = await listDatabases()
 
-    const db = databases.find((d) => d.id === id)
+    const db = databases.find((d) => d._id === id)
 
     return db || null
 }

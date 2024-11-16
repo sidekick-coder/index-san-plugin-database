@@ -1,6 +1,12 @@
 <script setup>
 import { ref } from 'vue'
 
+import { tryCatch } from 'app:utils'
+
+import snackbar from 'app:snackbar'
+
+import { createCollection } from '../services/collection.js'
+
 const props = defineProps({
     provider: {
         type: String,
@@ -10,6 +16,10 @@ const props = defineProps({
         type: String,
         required: true,
     },
+    metaFields: {
+        type: Array,
+        default: () => [],
+    },
 })
 
 const emit = defineEmits(['submit'])
@@ -18,13 +28,32 @@ const model = defineModel({
     type: Boolean,
 })
 
+const loading = ref(false)
+
 const payload = ref({
     name: '',
     description: '',
+    metadata: {},
 })
 
-function submit() {
-    console.log('submit', payload.value)
+async function submit() {
+    loading.value = true
+
+    const [collection, error] = await tryCatch(() =>
+        createCollection(props.databaseId, payload.value)
+    )
+
+    if (error) {
+        loading.value = false
+        snackbar.error('Failed to create collection', error)
+        return
+    }
+
+    setTimeout(() => {
+        loading.value = false
+        model.value = false
+        emit('submit', collection)
+    }, 800)
 }
 </script>
 
@@ -39,12 +68,15 @@ function submit() {
                 <is-text-field v-model="payload.name" label="Name" />
                 <is-text-field v-model="payload.description" label="Description" />
 
-                <template v-if="provider === 'entry'">
-                    <is-text-field v-model="payload.path" label="Path" />
-                </template>
+                <div v-for="field in metaFields" :key="field.name">
+                    <is-text-field v-model="payload.metadata[field.name]" :label="field.label" />
+                    <small v-if="field.description" class="text-xs text-body-500">
+                        {{ field.description }}
+                    </small>
+                </div>
 
                 <div class="text-right">
-                    <is-btn @click="submit">Create</is-btn>
+                    <is-btn :loading @click="submit">Create</is-btn>
                 </div>
             </is-card-content>
         </is-card>

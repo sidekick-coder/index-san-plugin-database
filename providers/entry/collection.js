@@ -2,6 +2,14 @@ import { drive, resolve, decode, encode } from 'app:drive'
 import { tryCatch } from 'app:utils'
 import { importJson, writeJson } from 'app:hecate'
 
+export const meta_fields = [
+    {
+        label: 'Path',
+        description: 'The path to the collection',
+        name: 'path',
+    },
+]
+
 export async function list({ database }) {
     const folder = resolve(database._path, 'collections')
 
@@ -35,6 +43,16 @@ export async function show({ database, collectionId }) {
     return collection || null
 }
 
-export async function create({ database, collectionId }) {
-    const collection = await show({ database, collectionId })
+export async function create({ database, payload }) {
+    const id = window.crypto.randomUUID()
+
+    const folder = resolve(database._path, 'collections', id)
+
+    console.log('Creating collection', folder)
+
+    await drive.mkdir(folder)
+
+    await writeJson(resolve(folder, 'config.json'), payload)
+
+    return show({ database, collectionId: id })
 }

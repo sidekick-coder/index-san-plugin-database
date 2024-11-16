@@ -73,8 +73,17 @@ function onNewCollection() {
                     <is-card-subtitle>Manage your collections</is-card-subtitle>
                 </div>
 
-                <div v-if="database?.capabilities?.includes('collection.create')">
-                    <is-btn @click="showDialog = true">Add new</is-btn>
+                <div class="flex gap-x-2">
+                    <is-btn @click="setItems">
+                        <is-icon name="heroicons:arrow-path" />
+                    </is-btn>
+
+                    <is-btn
+                        v-if="database?.capabilities?.includes('collection.create')"
+                        @click="showDialog = true"
+                    >
+                        Add new
+                    </is-btn>
                 </div>
             </is-card-head>
 
@@ -82,6 +91,7 @@ function onNewCollection() {
                 v-model="showDialog"
                 :database-id="props.databaseId"
                 :provider="database.provider"
+                :meta-fields="database._provider.collection?.meta_fields"
                 @submit="onNewCollection"
             />
 

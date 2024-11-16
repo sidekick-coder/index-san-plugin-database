@@ -7,7 +7,7 @@ export async function listCollections(databaseId) {
     const provider = await showProvider(database.provider)
 
     if (!provider?.collection?.list) {
-        console.error('[database] provider does not support listing collections')
+        console.error('[database] provider does have list method')
         return []
     }
 
@@ -29,5 +29,11 @@ export async function showCollection(databaseId, collectionId) {
 export async function createCollection(databaseId, payload) {
     const database = await showDatabase(databaseId)
 
-    const provider = await showProvider(payload.provider)
+    const provider = await showProvider(database.provider)
+
+    if (!provider?.collection?.create) {
+        throw new Error('[database] provider does not have create method')
+    }
+
+    return provider.collection.create({ database, payload })
 }
