@@ -6,7 +6,7 @@ import dialog from 'app:dialog'
 import snackbar from 'app:snackbar'
 import { tryCatch } from 'app:utils'
 
-import { destroyDatabase } from '../composables/destroyDatabase.js'
+import { destroyDatabase } from '../services/database.js'
 
 const props = defineProps({
     databaseId: {

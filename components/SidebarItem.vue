@@ -1,7 +1,7 @@
 <script setup>
 import { useRouter, useRoute } from 'vue-router'
 import { ref, watch, onMounted } from 'vue'
-import { listCollections } from '../composables/listCollections.js'
+import { listCollections } from '../services/collection.js'
 
 import DatabaseIcon from '../components/DatabaseIcon.vue'
 

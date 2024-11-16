@@ -27,6 +27,14 @@ export async function list({ database }) {
     return collections
 }
 
-export async function show() {}
+export async function show({ database, collectionId }) {
+    const all = await list({ database })
 
-export async function create() {}
+    const collection = all.find((c) => c._id === collectionId)
+
+    return collection || null
+}
+
+export async function create({ database, collectionId }) {
+    const collection = await show({ database, collectionId })
+}

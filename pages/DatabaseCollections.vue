@@ -4,7 +4,7 @@ import { onMounted, ref } from 'vue'
 
 import dialog from 'app:dialog'
 import snackbar from 'app:snackbar'
-import { listCollections } from '../composables/listCollections.js'
+import { listCollections } from '../services/collection.js'
 
 import CollectionIcon from '../components/CollectionIcon.vue'
 import CollectionDialog from '../components/CollectionDialog.vue'

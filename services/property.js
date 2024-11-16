@@ -1,15 +1,15 @@
-import { showCollection } from './showCollection.js'
-import { showDatabase } from './showDatabase.js'
-import { showProvider } from './showProvider.js'
+import { showCollection } from './collection.js'
+import { showDatabase } from './database.js'
+import { showProvider } from './provider.js'
 
 export async function listProperties(databaseId, collectionId) {
     const collection = await showCollection(databaseId, collectionId)
     const database = await showDatabase(databaseId)
     const provider = await showProvider(database.provider)
 
-    if (!provider) {
+    if (!provider?.property?.list) {
         throw new Error('Collection provider not found')
     }
 
-    return provider.listProperties({ database, collection })
+    return provider.property.list({ database, collection })
 }

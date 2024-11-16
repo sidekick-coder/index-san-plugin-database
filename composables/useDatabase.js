@@ -1,5 +1,5 @@
 import { onMounted, onUnmounted, readonly, ref } from 'vue'
-import { showDatabase } from './showDatabase.js'
+import { showDatabase } from '../services/database.js'
 
 import { onHook, offHook } from 'app:hook'
 

@@ -1,7 +1,6 @@
 <script setup>
 import { onMounted, ref } from 'vue'
-import { showDatabase } from '../composables/showDatabase.js'
-import { updateDatabase } from '../composables/updateDatabase.js'
+import { showDatabase, updateDatabase } from '../services/database.js'
 
 import snackbar from 'app:snackbar'
 import { tryCatch } from 'app:utils'

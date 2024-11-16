@@ -1,8 +1,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { listDatabases } from '../composables/listDatabases.js'
 import { onHook } from 'app:hook'
 
+import { listDatabases } from '../services/database.js'
 import SidebarItem from './SidebarItem.vue'
 
 const databases = ref([])
