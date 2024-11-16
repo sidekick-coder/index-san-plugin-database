@@ -51,7 +51,7 @@ onMounted(setDatabase)
                 <is-card-title> General </is-card-title>
             </is-card-head>
             <is-card-content class="flex flex-col gap-y-4">
-                <is-text-field v-model="database.id" label="ID" readonly />
+                <is-text-field v-model="database._id" label="ID" readonly />
                 <is-text-field v-model="database.provider" label="Provider" readonly />
 
                 <is-text-field v-model="database.label" label="Label" />

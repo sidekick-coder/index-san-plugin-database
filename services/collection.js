@@ -37,3 +37,27 @@ export async function createCollection(databaseId, payload) {
 
     return provider.collection.create({ database, payload })
 }
+
+export async function updateCollection(databaseId, collectionId, payload) {
+    const database = await showDatabase(databaseId)
+
+    const provider = await showProvider(database.provider)
+
+    if (!provider?.collection?.update) {
+        throw new Error('[database] provider does not have update method')
+    }
+
+    return provider.collection.update({ database, collectionId, payload })
+}
+
+export async function destroyCollection(databaseId, collectionId) {
+    const database = await showDatabase(databaseId)
+
+    const provider = await showProvider(database.provider)
+
+    if (!provider?.collection?.destroy) {
+        throw new Error('[database] provider does not have destroy method')
+    }
+
+    return provider.collection.destroy({ database, collectionId })
+}

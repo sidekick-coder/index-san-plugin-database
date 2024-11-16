@@ -61,16 +61,22 @@ export async function createDatabase(payload) {
         await drive.mkdir(folder)
     }
 
+    const config = {
+        label: payload.label,
+        description: payload.description,
+        provider: payload.provider,
+    }
+
     await drive.mkdir(resolve(folder, payload.id))
     await drive.mkdir(resolve(folder, payload.id, 'collections'))
     await drive.write(
         resolve(folder, payload.id, 'config.json'),
-        encode(JSON.stringify(payload, null, 4))
+        encode(JSON.stringify(config, null, 4))
     )
 
     emitHook('database:created', payload)
 
-    return payload
+    return showDatabase(payload.id)
 }
 
 export async function updateDatabase(id, payload) {
@@ -82,9 +88,17 @@ export async function updateDatabase(id, payload) {
         throw new Error('Database not found')
     }
 
+    const old = await showDatabase(id)
+
+    const config = {
+        label: payload.label || old.label,
+        description: payload.description || old.description,
+        provider: old.provider,
+    }
+
     const configFilename = resolve(filename, 'config.json')
 
-    await drive.write(configFilename, encode(JSON.stringify(payload, null, 4)))
+    await drive.write(configFilename, encode(JSON.stringify(config, null, 4)))
 
     emitHook('database:updated', {
         id,

@@ -13,7 +13,7 @@ const show = ref(false)
 const collections = ref([])
 
 async function setCollections() {
-    collections.value = await listCollections(props.database.id)
+    collections.value = await listCollections(props.database._id)
 }
 
 function onClick() {

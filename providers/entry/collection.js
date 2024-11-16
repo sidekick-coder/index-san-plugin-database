@@ -44,15 +44,19 @@ export async function show({ database, collectionId }) {
 }
 
 export async function create({ database, payload }) {
-    const id = window.crypto.randomUUID()
+    const collectionId = window.crypto.randomUUID()
 
-    const folder = resolve(database._path, 'collections', id)
-
-    console.log('Creating collection', folder)
+    const folder = resolve(database._path, 'collections', collectionId)
 
     await drive.mkdir(folder)
 
     await writeJson(resolve(folder, 'config.json'), payload)
 
-    return show({ database, collectionId: id })
+    return show({ database, collectionId })
+}
+
+export async function destroy({ database, collectionId }) {
+    const folder = resolve(database._path, 'collections', collectionId)
+
+    await drive.destroy(folder)
 }

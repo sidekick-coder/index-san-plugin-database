@@ -1,10 +1,11 @@
 <script setup>
-import { useRouter } from 'vue-router'
 import { onMounted, ref } from 'vue'
 
 import dialog from 'app:dialog'
 import snackbar from 'app:snackbar'
-import { listCollections } from '../services/collection.js'
+import { tryCatch } from 'app:utils'
+
+import { listCollections, destroyCollection } from '../services/collection.js'
 
 import CollectionIcon from '../components/CollectionIcon.vue'
 import CollectionDialog from '../components/CollectionDialog.vue'
@@ -17,8 +18,6 @@ const props = defineProps({
         required: true,
     },
 })
-
-const router = useRouter()
 
 // database
 const { database, load } = useDatabase(props.databaseId)
@@ -63,6 +62,27 @@ const showDialog = ref(false)
 function onNewCollection() {
     setItems()
 }
+
+// action
+
+async function destroy(collection) {
+    if (!(await dialog.confirm())) return
+
+    loading.value = true
+
+    const [, error] = await tryCatch(() => destroyCollection(props.databaseId, collection._id))
+
+    if (error) {
+        snackbar.error(error.message)
+        loading.value = false
+        return
+    }
+
+    setTimeout(() => {
+        loading.value = false
+        snackbar.success('Collection deleted')
+    }, 800)
+}
 </script>
 <template>
     <div v-if="database" class="p-4">
@@ -79,7 +99,7 @@ function onNewCollection() {
                     </is-btn>
 
                     <is-btn
-                        v-if="database?.capabilities?.includes('collection.create')"
+                        v-if="database?._capabilities?.includes('collection.create')"
                         @click="showDialog = true"
                     >
                         Add new
@@ -104,6 +124,17 @@ function onNewCollection() {
                 </template>
 
                 <template #item-actions="{ item }">
+                    <is-btn
+                        v-if="database?._capabilities?.includes('collection.destroy')"
+                        size="none"
+                        color="none"
+                        class="p-1 hover:bg-body-500"
+                        variant="text"
+                        @click="destroy(item)"
+                    >
+                        <is-icon name="heroicons:trash-solid" />
+                    </is-btn>
+
                     <is-btn
                         size="none"
                         color="none"

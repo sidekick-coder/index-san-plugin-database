@@ -2,6 +2,8 @@
 import { useRoute } from 'vue-router'
 import { computed, watch, shallowRef } from 'vue'
 
+import { useRouteQuery } from 'app:utils'
+
 import DatabaseIcon from '../components/DatabaseIcon.vue'
 
 import DatabaseGeneral from './DatabaseGeneral.vue'
@@ -26,6 +28,9 @@ watch(
     },
     { immediate: true }
 )
+
+// Tab
+const tab = useRouteQuery('tab', 'general')
 
 const tabs = shallowRef([])
 
@@ -75,7 +80,7 @@ watch(database, setTabs)
                 </div>
             </is-card-head>
 
-            <is-tabs :items="tabs">
+            <is-tabs v-model="tab" :items="tabs">
                 <template #item="{ item }">
                     <div class="border-t border-body-500 bg-body-700">
                         <component :is="item.component" :database-id :database />
