@@ -15,6 +15,10 @@ const props = defineProps({
         type: String,
         required: true,
     },
+    readonly: {
+        type: Boolean,
+        default: false,
+    },
 })
 
 const loading = ref(true)
@@ -60,9 +64,13 @@ onMounted(setDatabase)
             <is-card-content class="flex flex-col gap-y-4">
                 <is-text-field v-model="payload.id" label="ID" readonly />
 
-                <is-text-field v-model="payload.label" label="Label" />
-                <is-text-field v-model="payload.description" label="Description" />
-                <is-text-field v-model="payload.icon" label="Icon" />
+                <is-text-field v-model="payload.label" label="Label" :readonly="readonly" />
+                <is-text-field
+                    v-model="payload.description"
+                    label="Description"
+                    :readonly="readonly"
+                />
+                <is-text-field v-model="payload.icon" label="Icon" :readonly="readonly" />
 
                 <div class="text-right">
                     <is-btn color="primary" :loading="saving" @click="save"> Save </is-btn>

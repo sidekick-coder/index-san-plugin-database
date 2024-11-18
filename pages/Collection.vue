@@ -7,14 +7,19 @@ import { useRouteQuery } from 'app:utils'
 import CollectionIcon from '../components/CollectionIcon.vue'
 import CollectionGeneral from './CollectionGeneral.vue'
 import CollectionMetadata from './CollectionMetadata.vue'
+import CollectionProperties from './CollectionProperties.vue'
 
 import { useCollection } from '../composables/useCollection.js'
-
+import { useDatabase } from '../composables/useDatabase.js'
 // general
 const route = useRoute()
 
-// collection
+// database
 const databaseId = computed(() => route.query.databaseId)
+
+const { database } = useDatabase(databaseId, { immediate: true })
+
+// collection
 const collectionId = computed(() => route.query.collectionId)
 
 const { collection, load, loading } = useCollection(databaseId, collectionId)
@@ -37,6 +42,11 @@ function setTabs() {
             label: 'Metadata',
             value: 'metadata',
             component: CollectionMetadata,
+        },
+        {
+            label: 'Properties',
+            value: 'properties',
+            component: CollectionProperties,
         },
     ]
 }
@@ -68,7 +78,14 @@ watch(collection, setTabs)
             <is-tabs v-model="tab" :items="tabs">
                 <template #item="{ item }">
                     <div class="border-t border-body-500 bg-body-700">
-                        <component :is="item.component" :database-id :collection-id :collection />
+                        <component
+                            :is="item.component"
+                            :database-id
+                            :collection-id
+                            :collection
+                            :database
+                            :readonly="!database?._capabilities?.includes('collection.update')"
+                        />
                     </div>
                 </template>
             </is-tabs>
