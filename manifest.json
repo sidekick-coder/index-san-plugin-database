@@ -19,14 +19,10 @@
             "name": "collection",
             "filename": "pages/Collection.vue"
         },
-		{
-			"name": "database-item-list",
-			"filename": "pages/ItemList.js"
-		},
-		{
-			"name": "database-new",
-			"filename": "pages/DatabaseNew.vue"
-		}
+        {
+            "name": "property",
+            "filename": "pages/Property.vue"
+        }
 	],
 	"menu": [
 		{

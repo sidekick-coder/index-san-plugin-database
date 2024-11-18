@@ -1,8 +1,8 @@
-import { onMounted, onUnmounted, readonly, ref, isRef } from 'vue'
+import { onMounted, onUnmounted, readonly, ref, isRef, watch } from 'vue'
 import { showCollection } from '../services/collection.js'
 import { onHook, offHook } from 'app:hook'
 
-export function useCollection(_databaseId = null, _collectionId = null) {
+export function useCollection(_databaseId = null, _collectionId = null, options = {}) {
     const databaseId = isRef(_databaseId) ? _databaseId : ref(_databaseId)
     const collectionId = isRef(_collectionId) ? _collectionId : ref(_collectionId)
 
@@ -36,6 +36,14 @@ export function useCollection(_databaseId = null, _collectionId = null) {
     onMounted(() => onHook('collection:updated', onUpdated))
 
     onUnmounted(() => offHook('collection:updated', onUpdated))
+
+    if (options.immediate) {
+        load()
+    }
+
+    if (options.watch) {
+        watch([databaseId, collectionId], load)
+    }
 
     return {
         collectionId,

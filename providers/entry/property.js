@@ -43,6 +43,7 @@ export async function create({ database, collection, payload }) {
     const config = {
         name: payload.name,
         label: payload.label,
+        value: payload.value,
         description: payload.description,
         icon: payload.icon,
         metadata: payload.metadata,
@@ -51,6 +52,27 @@ export async function create({ database, collection, payload }) {
     await drive.mkdir(folder)
 
     await writeJson(resolve(folder, 'config.json'), config)
+
+    return show({ database, collection, propertyId })
+}
+
+export async function update({ database, collection, propertyId, payload }) {
+    const property = await show({ database, collection, propertyId })
+
+    if (!property) {
+        throw new Error('Property not found')
+    }
+
+    const config = {
+        name: payload.name || property.name,
+        label: payload.label || property.label,
+        value: payload.value || property.value,
+        description: payload.description || property.description,
+        icon: payload.icon || property.icon,
+        metadata: payload.metadata || property.metadata,
+    }
+
+    await writeJson(resolve(property._path, 'config.json'), config)
 
     return show({ database, collection, propertyId })
 }
