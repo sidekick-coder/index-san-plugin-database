@@ -1,5 +1,6 @@
 import { showDatabase } from './database.js'
 import { showProvider } from './provider.js'
+import { emitHook } from 'app:hook'
 
 export async function listCollections(databaseId) {
     const database = await showDatabase(databaseId)
@@ -35,7 +36,11 @@ export async function createCollection(databaseId, payload) {
         throw new Error('[database] provider does not have create method')
     }
 
-    return provider.collection.create({ database, payload })
+    const result = await provider.collection.create({ database, payload })
+
+    emitHook('collection:created', { databaseId, payload, collectionId: result.id })
+
+    return result
 }
 
 export async function updateCollection(databaseId, collectionId, payload) {
@@ -47,7 +52,11 @@ export async function updateCollection(databaseId, collectionId, payload) {
         throw new Error('[database] provider does not have update method')
     }
 
-    return provider.collection.update({ database, collectionId, payload })
+    const result = await provider.collection.update({ database, collectionId, payload })
+
+    emitHook('collection:updated', { databaseId, collectionId, payload })
+
+    return result
 }
 
 export async function destroyCollection(databaseId, collectionId) {
@@ -59,5 +68,9 @@ export async function destroyCollection(databaseId, collectionId) {
         throw new Error('[database] provider does not have destroy method')
     }
 
-    return provider.collection.destroy({ database, collectionId })
+    const result = await provider.collection.destroy({ database, collectionId })
+
+    emitHook('collection:destroyed', { databaseId, collectionId })
+
+    return result
 }

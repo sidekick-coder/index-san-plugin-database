@@ -27,7 +27,7 @@ export async function list({ database }) {
         if (error) continue
 
         json._path = e.path
-        json._id = e.name
+        json.id = e.name
 
         collections.push(json)
     }
@@ -48,9 +48,31 @@ export async function create({ database, payload }) {
 
     const folder = resolve(database._path, 'collections', collectionId)
 
+    const config = {
+        label: payload.label,
+        description: payload.description,
+        icon: payload.icon,
+        metadata: payload.metadata,
+    }
+
     await drive.mkdir(folder)
 
-    await writeJson(resolve(folder, 'config.json'), payload)
+    await writeJson(resolve(folder, 'config.json'), config)
+
+    return show({ database, collectionId })
+}
+
+export async function update({ database, collectionId, payload }) {
+    const folder = resolve(database._path, 'collections', collectionId)
+
+    const config = {
+        label: payload.label,
+        description: payload.description,
+        icon: payload.icon,
+        metadata: payload.metadata,
+    }
+
+    await writeJson(resolve(folder, 'config.json'), config)
 
     return show({ database, collectionId })
 }

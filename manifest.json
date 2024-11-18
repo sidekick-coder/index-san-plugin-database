@@ -15,6 +15,10 @@
 			"name": "database",
 			"filename": "pages/Database.vue"
 		},
+        {
+            "name": "collection",
+            "filename": "pages/Collection.vue"
+        },
 		{
 			"name": "database-item-list",
 			"filename": "pages/ItemList.js"

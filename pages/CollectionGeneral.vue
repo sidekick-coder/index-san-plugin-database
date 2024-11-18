@@ -1,24 +1,29 @@
 <script setup>
 import { onMounted, ref } from 'vue'
-import { showDatabase, updateDatabase } from '../services/database.js'
 
 import snackbar from 'app:snackbar'
 import { tryCatch } from 'app:utils'
+
+import { showCollection, updateCollection } from '../services/collection.js'
 
 const props = defineProps({
     databaseId: {
         type: String,
         required: true,
     },
+    collectionId: {
+        type: String,
+        required: true,
+    },
 })
 
 const loading = ref(true)
-const database = ref()
+const payload = ref()
 
 async function setDatabase() {
     loading.value = true
 
-    database.value = await showDatabase(props.databaseId)
+    payload.value = await showCollection(props.databaseId, props.collectionId)
 
     setTimeout(() => {
         loading.value = false
@@ -30,33 +35,34 @@ const saving = ref(false)
 async function save() {
     saving.value = true
 
-    const [, error] = await tryCatch(() => updateDatabase(props.databaseId, database.value))
+    const [, error] = await tryCatch(() =>
+        updateCollection(props.databaseId, props.collectionId, payload.value)
+    )
 
     saving.value = false
 
     if (error) {
-        snackbar.error('Failed to update database')
+        snackbar.error('Failed to update collection', error)
         return
     }
 
-    snackbar.success('Database updated')
+    snackbar.success('Collection updated')
 }
 
 onMounted(setDatabase)
 </script>
 <template>
     <div class="p-4">
-        <is-card v-if="database" color="body-800">
+        <is-card v-if="payload" color="body-800">
             <is-card-head>
                 <is-card-title> General </is-card-title>
             </is-card-head>
             <is-card-content class="flex flex-col gap-y-4">
-                <is-text-field v-model="database._id" label="ID" readonly />
-                <is-text-field v-model="database.provider" label="Provider" readonly />
+                <is-text-field v-model="payload.id" label="ID" readonly />
 
-                <is-text-field v-model="database.label" label="Label" />
-                <is-text-field v-model="database.description" label="Description" />
-                <is-text-field v-model="database.icon" label="Icon" />
+                <is-text-field v-model="payload.label" label="Label" />
+                <is-text-field v-model="payload.description" label="Description" />
+                <is-text-field v-model="payload.icon" label="Icon" />
 
                 <div class="text-right">
                     <is-btn color="primary" :loading="saving" @click="save"> Save </is-btn>
