@@ -1,17 +1,18 @@
-import { onMounted, onUnmounted, readonly, ref } from 'vue'
+import { onMounted, onUnmounted, readonly, ref, isRef, watch } from 'vue'
 import { showDatabase } from '../services/database.js'
 
 import { onHook, offHook } from 'app:hook'
 
-export function useDatabase(payloadId = null) {
-    const id = ref(payloadId)
+export function useDatabase(_databaseId = null, options = {}) {
+    const databaseId = isRef(_databaseId) ? _databaseId : ref(_databaseId)
+
     const database = ref(null)
     const loading = ref(false)
 
     async function load() {
         loading.value = true
 
-        database.value = await showDatabase(id.value)
+        database.value = await showDatabase(databaseId.value)
 
         setTimeout(() => {
             loading.value = false
@@ -36,8 +37,16 @@ export function useDatabase(payloadId = null) {
 
     onUnmounted(() => offHook('database:updated', onDatabaseUpdated))
 
+    if (options.immediate) {
+        load()
+    }
+
+    if (options.watch) {
+        watch(databaseId, load)
+    }
+
     return {
-        id,
+        databaseId,
         database: readonly(database),
         loading,
 

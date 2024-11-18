@@ -65,6 +65,7 @@ export async function createDatabase(payload) {
         label: payload.label,
         description: payload.description,
         provider: payload.provider,
+        icon: payload.icon,
     }
 
     await drive.mkdir(resolve(folder, payload.id))
@@ -94,6 +95,7 @@ export async function updateDatabase(id, payload) {
         label: payload.label || old.label,
         description: payload.description || old.description,
         provider: old.provider,
+        icon: payload.icon || old.icon,
     }
 
     const configFilename = resolve(filename, 'config.json')

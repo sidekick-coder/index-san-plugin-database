@@ -17,17 +17,7 @@ const route = useRoute()
 
 // database
 const databaseId = computed(() => route.query.databaseId)
-const { id, database, loading, load } = useDatabase()
-
-watch(
-    databaseId,
-    () => {
-        id.value = databaseId.value
-
-        load()
-    },
-    { immediate: true }
-)
+const { database, loading } = useDatabase(databaseId, { immediate: true, watch: true })
 
 // Tab
 const tab = useRouteQuery('tab', 'general')

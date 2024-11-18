@@ -77,8 +77,8 @@ onMounted(() => {
             :key="c.id"
             :to="{
                 name: 'app-page',
-                params: { name: 'database-item-list' },
-                query: { databaseId: database.id, collectionId: c.id },
+                params: { name: 'collection' },
+                query: { databaseId: database._id, collectionId: c.id },
             }"
             class="pl-10"
             exact
@@ -87,7 +87,7 @@ onMounted(() => {
                 <is-icon :name="c.icon || 'heroicons:archive-box-20-solid'" />
             </div>
             <div class="ml-4">
-                {{ c.name }}
+                {{ c.label }}
             </div>
         </is-list-item>
     </div>

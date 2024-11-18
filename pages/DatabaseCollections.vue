@@ -70,13 +70,15 @@ async function destroy(collection) {
 
     loading.value = true
 
-    const [, error] = await tryCatch(() => destroyCollection(props.databaseId, collection._id))
+    const [, error] = await tryCatch(() => destroyCollection(props.databaseId, collection.id))
 
     if (error) {
         snackbar.error(error.message)
         loading.value = false
         return
     }
+
+    await setItems()
 
     setTimeout(() => {
         loading.value = false
