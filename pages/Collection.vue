@@ -6,6 +6,7 @@ import { useRouteQuery } from 'app:utils'
 
 import CollectionIcon from '../components/CollectionIcon.vue'
 import CollectionGeneral from './CollectionGeneral.vue'
+import CollectionMetadata from './CollectionMetadata.vue'
 
 import { useCollection } from '../composables/useCollection.js'
 
@@ -31,6 +32,11 @@ function setTabs() {
             label: 'General',
             value: 'general',
             component: CollectionGeneral,
+        },
+        {
+            label: 'Metadata',
+            value: 'metadata',
+            component: CollectionMetadata,
         },
     ]
 }

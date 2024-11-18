@@ -31,7 +31,7 @@ const fields = ref([
     {
         name: 'name',
         label: 'Name',
-        value: 'name',
+        value: 'label',
     },
     {
         name: 'description',
@@ -146,7 +146,7 @@ async function destroy(collection) {
                             query: { databaseId: props.databaseId, collectionId: item.id },
                         }"
                     >
-                        <is-icon name="heroicons:chevron-right-solid" />
+                        <is-icon name="heroicons:eye-solid" />
                     </is-btn>
                 </template>
             </is-data-table>
