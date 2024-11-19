@@ -23,17 +23,18 @@ export async function listItems(databaseId, collectionId, options = {}) {
 }
 
 export async function showItem(databaseId, collectionId, itemId) {
+    const database = await showDatabase(databaseId)
     const collection = await showCollection(databaseId, collectionId)
+    const provider = await showProvider(database.provider)
 
-    const provider = await showProvider(collection.provider)
-
-    if (!provider) {
-        throw new Error('Collection provider not found')
+    if (!provider?.item.show) {
+        throw new Error('[database] provider does not have item.show method')
     }
 
-    return provider.show({
+    return provider.item.show({
+        database,
         collection,
-        id: itemId,
+        itemId,
     })
 }
 export async function createItem(databaseId, collectionId, payload) {
@@ -41,13 +42,13 @@ export async function createItem(databaseId, collectionId, payload) {
     const database = await showDatabase(databaseId)
     const properties = await listProperties(databaseId, collectionId)
 
-    const provider = await showProvider(collection.provider)
+    const provider = await showProvider(database.provider)
 
-    if (!provider) {
-        throw new Error('Collection provider not found')
+    if (!provider?.item?.create) {
+        throw new Error('[database] provider does not have item.create method')
     }
 
-    return provider.create({
+    return provider.item.create({
         database,
         collection,
         properties,

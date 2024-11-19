@@ -9,6 +9,9 @@ export const capabilities = [
     'property.create',
     'property.update',
     'property.destroy',
+    'item.create',
+    'item.update',
+    'item.destroy',
 ]
 
 export const collection = _collection

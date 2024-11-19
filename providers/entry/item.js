@@ -1,5 +1,5 @@
-import { drive } from 'app:drive'
-import { importJson } from 'app:hecate'
+import { drive, resolve } from 'app:drive'
+import { importJson, writeJson } from 'app:hecate'
 
 export async function list({ collection, limit = 20, page = 1 }) {
     const entries = await drive.list(collection.metadata.path)
@@ -28,4 +28,33 @@ export async function list({ collection, limit = 20, page = 1 }) {
         meta,
         data,
     }
+}
+
+export async function show({ collection, itemId }) {
+    const filename = resolve(collection.metadata.path, `${itemId}.json`)
+
+    const entry = await drive.get(filename)
+
+    if (!entry) return null
+
+    const json = await importJson(entry.path)
+
+    json._id = entry.name.replace('.json', '')
+    json._path = entry.path
+
+    return json
+}
+
+export async function create({ collection, payload }) {
+    const itemId = window.crypto.randomUUID()
+
+    const filename = resolve(collection.metadata.path, itemId + '.json')
+
+    if (await drive.get(filename)) {
+        throw new Error('[database] item already exists')
+    }
+
+    await writeJson(filename, payload)
+
+    return show({ collection, itemId })
 }

@@ -3,10 +3,11 @@ import { onMounted, ref } from 'vue'
 
 import snackbar from 'app:snackbar'
 import dialog from 'app:dialog'
-
 import { tryCatch } from 'app:utils'
 
+import ItemDialog from '../components/ItemDialog.vue'
 import { listItems } from '../services/item.js'
+import { listProperties } from '../services/property.js'
 
 const props = defineProps({
     database: {
@@ -27,6 +28,7 @@ const props = defineProps({
     },
 })
 
+// data
 const loading = ref(false)
 const items = ref([])
 const meta = ref({})
@@ -53,7 +55,18 @@ async function refresh() {
 
 onMounted(loadPage)
 
+// properties
+const properties = ref([])
+
+async function loadProperties() {
+    properties.value = await listProperties(props.databaseId, props.collectionId)
+}
+
+onMounted(loadProperties)
+
 // actions
+const showDialog = ref(false)
+
 const delitingId = ref(null)
 
 async function destroy(property) {
@@ -101,6 +114,14 @@ async function destroy(property) {
                     </is-btn>
                 </div>
             </is-card-head>
+
+            <item-dialog
+                v-model="showDialog"
+                :database-id
+                :collection-id
+                :properties
+                @submit="refresh"
+            />
 
             <is-card-content class="flex-1 relative h-inherit">
                 <div v-if="loading" class="w-full h-80 flex items-center justify-center">
