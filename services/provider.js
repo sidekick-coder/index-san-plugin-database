@@ -7,16 +7,6 @@ export const providerFiles = [
         label: 'Entry',
         filename: resolve(__dirname, '../providers/entry/index.js'),
     },
-    {
-        id: 'api',
-        label: 'API',
-        filename: resolve(__dirname, '../providers/apiProvider.js'),
-    },
-    {
-        id: 'custom',
-        label: 'Custom',
-        filename: resolve(__dirname, '../providers/custom/index.js'),
-    },
 ]
 
 export async function listProviders() {

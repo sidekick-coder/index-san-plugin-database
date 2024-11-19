@@ -25,14 +25,14 @@ export async function listDatabases() {
             return JSON.parse(decode(contents))
         })
 
-        if (error) continue
+        if (error || !json) continue
 
         const provider = await showProvider(json.provider)
 
         json._id = e.name
         json._path = e.path
         json._provider = provider
-        json._capabilities = provider.capabilities || []
+        json._capabilities = provider?.capabilities || []
 
         databases.push(json)
     }

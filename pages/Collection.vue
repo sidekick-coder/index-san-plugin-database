@@ -1,14 +1,10 @@
 <script setup>
 import { useRoute } from 'vue-router'
-import { computed, watch, shallowRef } from 'vue'
+import { computed, watch, shallowRef, defineAsyncComponent } from 'vue'
 
 import { useRouteQuery } from 'app:utils'
 
 import CollectionIcon from '../components/CollectionIcon.vue'
-import CollectionGeneral from './CollectionGeneral.vue'
-import CollectionMetadata from './CollectionMetadata.vue'
-import CollectionProperties from './CollectionProperties.vue'
-import CollectionData from './CollectionData.vue'
 
 import { useCollection } from '../composables/useCollection.js'
 import { useDatabase } from '../composables/useDatabase.js'
@@ -37,22 +33,30 @@ function setTabs() {
         {
             label: 'General',
             value: 'general',
-            component: CollectionGeneral,
+            component: defineAsyncComponent(() =>
+                import('./CollectionGeneral.vue').then((m) => m.default)
+            ),
         },
         {
             label: 'Data',
             value: 'data',
-            component: CollectionData,
+            component: defineAsyncComponent(() =>
+                import('./CollectionData.vue').then((m) => m.default)
+            ),
         },
         {
             label: 'Metadata',
             value: 'metadata',
-            component: CollectionMetadata,
+            component: defineAsyncComponent(() =>
+                import('./CollectionMetadata.vue').then((m) => m.default)
+            ),
         },
         {
             label: 'Properties',
             value: 'properties',
-            component: CollectionProperties,
+            component: defineAsyncComponent(() =>
+                import('./CollectionProperties.vue').then((m) => m.default)
+            ),
         },
     ]
 }
