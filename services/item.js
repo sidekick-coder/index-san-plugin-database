@@ -3,30 +3,23 @@ import { showCollection } from './collection.js'
 import { showDatabase } from './database.js'
 import { showProvider } from './provider.js'
 
-import snackbar from 'app:snackbar'
-import { tryCatch } from 'app:utils'
-
-export async function listItems(databaseId, collectionId) {
+export async function listItems(databaseId, collectionId, options = {}) {
     const database = await showDatabase(databaseId)
     const collection = await showCollection(databaseId, collectionId)
-    const properties = await listProperties(databaseId, collectionId)
 
     const provider = await showProvider(database.provider)
 
-    if (!provider) {
-        snackbar.error('Provider not found')
-        return []
+    if (!provider?.item?.list) {
+        throw new Error('[database] provider does not have item.list method')
     }
 
-    const [items, error] = await tryCatch(() => provider.list({ database, collection, properties }))
-
-    if (error) {
-        snackbar.error('Failed to list items')
-        console.error('[database] Failed to list items', error)
-        return []
-    }
-
-    return items
+    return await provider.item.list({
+        database,
+        collection,
+        limit: options.limit,
+        page: options.page,
+        where: options.where,
+    })
 }
 
 export async function showItem(databaseId, collectionId, itemId) {

@@ -1,5 +1,6 @@
 import * as _collection from './collection.js'
 import * as _property from './property.js'
+import * as _item from './item.js'
 
 export const capabilities = [
     'collection.create',
@@ -12,3 +13,4 @@ export const capabilities = [
 
 export const collection = _collection
 export const property = _property
+export const item = _item

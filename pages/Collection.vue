@@ -8,6 +8,7 @@ import CollectionIcon from '../components/CollectionIcon.vue'
 import CollectionGeneral from './CollectionGeneral.vue'
 import CollectionMetadata from './CollectionMetadata.vue'
 import CollectionProperties from './CollectionProperties.vue'
+import CollectionData from './CollectionData.vue'
 
 import { useCollection } from '../composables/useCollection.js'
 import { useDatabase } from '../composables/useDatabase.js'
@@ -37,6 +38,11 @@ function setTabs() {
             label: 'General',
             value: 'general',
             component: CollectionGeneral,
+        },
+        {
+            label: 'Data',
+            value: 'data',
+            component: CollectionData,
         },
         {
             label: 'Metadata',
@@ -77,7 +83,10 @@ watch(collection, setTabs)
 
             <is-tabs v-model="tab" :items="tabs">
                 <template #item="{ item }">
-                    <div class="border-t border-body-500 bg-body-700">
+                    <div
+                        class="border-t border-body-500 bg-body-700 overflow-y-auto"
+                        style="height: calc(100dvh - 80px - 42px)"
+                    >
                         <component
                             :is="item.component"
                             :database-id

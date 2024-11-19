@@ -16,7 +16,7 @@ export function useDatabase(_databaseId = null, options = {}) {
 
         setTimeout(() => {
             loading.value = false
-        }, 800)
+        }, 500)
     }
 
     async function refresh() {
