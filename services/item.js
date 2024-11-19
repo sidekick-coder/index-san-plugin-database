@@ -83,16 +83,18 @@ export async function updateItem(databaseId, collectionId, itemId, payload) {
 }
 
 export async function destroyItem(databaseId, collectionId, itemId) {
+    const database = await showDatabase(databaseId)
     const collection = await showCollection(databaseId, collectionId)
 
-    const provider = await showProvider(collection.provider)
+    const provider = await showProvider(database.provider)
 
-    if (!provider) {
-        throw new Error('Collection provider not found')
+    if (!provider?.item?.destroy) {
+        throw new Error('[database] provider does not have item.destroy method')
     }
 
-    return provider.destroy({
+    return provider.item.destroy({
+        database,
         collection,
-        id: itemId,
+        itemId,
     })
 }

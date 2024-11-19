@@ -6,7 +6,7 @@ import dialog from 'app:dialog'
 import { tryCatch } from 'app:utils'
 
 import ItemDialog from '../components/ItemDialog.vue'
-import { listItems } from '../services/item.js'
+import { destroyItem, listItems } from '../services/item.js'
 import { listProperties } from '../services/property.js'
 
 const props = defineProps({
@@ -69,26 +69,26 @@ const showDialog = ref(false)
 
 const delitingId = ref(null)
 
-async function destroy(property) {
+async function destroy(item) {
     if (!(await dialog.confirm())) return
 
-    delitingId.value = property.id
+    delitingId.value = item.id
 
     const [, error] = await tryCatch(() =>
-        destroyProperty(props.databaseId, props.collectionId, property.id)
+        destroyItem(props.databaseId, props.collectionId, item.id)
     )
 
     if (error) {
         delitingId.value = null
-        snackbar.error('Failed to destroy property', error)
+        snackbar.error('Failed to destroy item', error)
         return
     }
 
-    items.value = items.value.filter((item) => item.id !== property.id)
+    items.value = items.value.filter((i) => i.id !== item.id)
 
     setTimeout(() => {
         delitingId.value = null
-        snackbar.success('Property deleted')
+        snackbar.success('Item deleted')
     }, 800)
 }
 </script>
@@ -136,9 +136,43 @@ async function destroy(property) {
                 </is-card>
 
                 <div v-else class="flex flex-col gap-y-4 min-h-full">
-                    <is-card v-for="item in items" :key="item.id">
-                        <is-card-content>
+                    <is-card v-for="item in items" :key="item.id" class="group">
+                        <is-card-content class="relative">
                             <pre v-text="item" />
+
+                            <div
+                                class="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100"
+                            >
+                                <is-btn
+                                    v-if="database?._capabilities?.includes('item.destroy')"
+                                    size="none"
+                                    color="none"
+                                    class="p-1 hover:bg-body-500"
+                                    variant="text"
+                                    :loading="delitingId === item.id"
+                                    @click="destroy(item)"
+                                >
+                                    <is-icon name="heroicons:trash-solid" />
+                                </is-btn>
+
+                                <is-btn
+                                    size="none"
+                                    color="none"
+                                    class="p-1 hover:bg-body-500"
+                                    variant="text"
+                                    :to="{
+                                        name: 'app-page',
+                                        params: { name: 'item' },
+                                        query: {
+                                            databaseId,
+                                            collectionId,
+                                            itemId: item.id,
+                                        },
+                                    }"
+                                >
+                                    <is-icon name="heroicons:eye-solid" />
+                                </is-btn>
+                            </div>
                         </is-card-content>
                     </is-card>
 

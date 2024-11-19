@@ -9,7 +9,7 @@ export async function list({ collection, limit = 20, page = 1 }) {
     for await (const e of entries) {
         const json = await importJson(e.path)
 
-        json._id = e.name.replace('.json', '')
+        json.id = e.name.replace('.json', '')
         json._path = e.path
 
         items.push(json)
@@ -39,7 +39,7 @@ export async function show({ collection, itemId }) {
 
     const json = await importJson(entry.path)
 
-    json._id = entry.name.replace('.json', '')
+    json.id = entry.name.replace('.json', '')
     json._path = entry.path
 
     return json
@@ -57,4 +57,10 @@ export async function create({ collection, payload }) {
     await writeJson(filename, payload)
 
     return show({ collection, itemId })
+}
+
+export async function destroy({ collection, itemId }) {
+    const filename = resolve(collection.metadata.path, `${itemId}.json`)
+
+    await drive.destroy(filename)
 }
