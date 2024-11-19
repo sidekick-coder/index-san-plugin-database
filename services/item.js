@@ -1,3 +1,5 @@
+import { emitHook } from 'app:hook'
+
 import { listProperties } from './property.js'
 import { showCollection } from './collection.js'
 import { showDatabase } from './database.js'
@@ -48,35 +50,44 @@ export async function createItem(databaseId, collectionId, payload) {
         throw new Error('[database] provider does not have item.create method')
     }
 
-    return provider.item.create({
+    const result = await provider.item.create({
         database,
         collection,
         properties,
         payload,
     })
+
+    emitHook('item:created', {
+        databaseId,
+        collectionId,
+        payload: result,
+    })
+
+    return result
 }
 
 export async function updateItem(databaseId, collectionId, itemId, payload) {
+    const database = await showDatabase(databaseId)
     const collection = await showCollection(databaseId, collectionId)
 
-    const provider = await showProvider(collection.provider)
+    const provider = await showProvider(database.provider)
 
-    if (!provider) {
-        throw new Error('Collection provider not found')
+    if (!provider?.item?.update) {
+        throw new Error('[database] provider does not have item.update method')
     }
 
-    const result = await provider.update({
+    const result = await provider.item.update({
+        database,
         collection,
-        id: itemId,
+        itemId,
         payload,
     })
 
-    console.debug('[database] update-item', {
+    emitHook('item:updated', {
         databaseId,
         collectionId,
         itemId,
-        payload,
-        result,
+        payload: result,
     })
 
     return result
@@ -92,9 +103,17 @@ export async function destroyItem(databaseId, collectionId, itemId) {
         throw new Error('[database] provider does not have item.destroy method')
     }
 
-    return provider.item.destroy({
+    const result = await provider.item.destroy({
         database,
         collection,
         itemId,
     })
+
+    emitHook('item:destroyed', {
+        databaseId,
+        collectionId,
+        itemId,
+    })
+
+    return result
 }

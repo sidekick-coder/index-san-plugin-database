@@ -22,7 +22,12 @@
         {
             "name": "property",
             "filename": "pages/Property.vue"
+        },
+        {
+            "name": "item",
+            "filename": "pages/Item.vue"
         }
+
 	],
 	"menu": [
 		{

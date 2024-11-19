@@ -59,6 +59,18 @@ export async function create({ collection, payload }) {
     return show({ collection, itemId })
 }
 
+export async function update({ collection, itemId, payload }) {
+    const item = await show({ collection, itemId })
+
+    if (!item) {
+        throw new Error('[database] item not found')
+    }
+
+    await writeJson(item._path, payload)
+
+    return show({ collection, itemId })
+}
+
 export async function destroy({ collection, itemId }) {
     const filename = resolve(collection.metadata.path, `${itemId}.json`)
 

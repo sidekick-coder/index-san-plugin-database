@@ -1,6 +1,6 @@
 <script setup>
 defineProps({
-    property: {
+    item: {
         type: Object,
         default: () => ({}),
     },
@@ -8,5 +8,5 @@ defineProps({
 </script>
 
 <template>
-    <is-icon :name="property.icon || 'heroicons:cube'" />
+    <is-icon :name="item.icon || 'heroicons:document-text'" />
 </template>
