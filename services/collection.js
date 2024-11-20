@@ -8,7 +8,7 @@ export async function listCollections(databaseId) {
     const provider = await showProvider(database.provider)
 
     if (!provider?.collection?.list) {
-        console.error('[database] provider does have list method')
+        console.error('[database] provider does have collection.list method')
         return []
     }
 
@@ -33,7 +33,7 @@ export async function createCollection(databaseId, payload) {
     const provider = await showProvider(database.provider)
 
     if (!provider?.collection?.create) {
-        throw new Error('[database] provider does not have create method')
+        throw new Error('[database] provider does not have collection.create method')
     }
 
     const result = await provider.collection.create({ database, payload })
@@ -49,7 +49,7 @@ export async function updateCollection(databaseId, collectionId, payload) {
     const provider = await showProvider(database.provider)
 
     if (!provider?.collection?.update) {
-        throw new Error('[database] provider does not have update method')
+        throw new Error('[database] provider does not have collection.update method')
     }
 
     const result = await provider.collection.update({ database, collectionId, payload })
@@ -65,7 +65,7 @@ export async function destroyCollection(databaseId, collectionId) {
     const provider = await showProvider(database.provider)
 
     if (!provider?.collection?.destroy) {
-        throw new Error('[database] provider does not have destroy method')
+        throw new Error('[database] provider does not have collection.destroy method')
     }
 
     const result = await provider.collection.destroy({ database, collectionId })

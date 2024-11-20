@@ -26,8 +26,11 @@
         {
             "name": "item",
             "filename": "pages/Item.vue"
+        },
+        {
+            "name": "view",
+            "filename": "pages/View.vue"
         }
-
 	],
 	"menu": [
 		{

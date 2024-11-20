@@ -1,14 +1,14 @@
 <script setup>
 import { onMounted, ref } from 'vue'
-
-import PropertyDialog from '../components/PropertyDialog.vue'
+import { useRouter } from 'vue-router'
 
 import snackbar from 'app:snackbar'
 import dialog from 'app:dialog'
 import { tryCatch } from 'app:utils'
 
-import { destroyProperty, listProperties } from '../services/property.js'
+import { createView, listViews, destroyView } from '../services/view.js'
 
+// general
 const props = defineProps({
     database: {
         type: Object,
@@ -28,6 +28,9 @@ const props = defineProps({
     },
 })
 
+const router = useRouter()
+
+// data
 const loading = ref(false)
 const items = ref([])
 const fields = ref([
@@ -37,9 +40,9 @@ const fields = ref([
         value: 'label',
     },
     {
-        name: 'type',
-        label: 'Type',
-        value: 'type',
+        name: 'component',
+        label: 'Component',
+        value: 'component',
     },
     {
         name: 'description',
@@ -55,7 +58,7 @@ const fields = ref([
 async function load() {
     loading.value = true
 
-    items.value = await listProperties(props.databaseId, props.collectionId)
+    items.value = await listViews(props.databaseId, props.collectionId)
 
     setTimeout(() => {
         loading.value = false
@@ -65,33 +68,48 @@ async function load() {
 onMounted(load)
 
 // actions
-const showDialog = ref(false)
 const delitingId = ref(null)
+const creating = ref(false)
 
-function onNewProperty(property) {
-    items.value.push(property)
+async function create() {
+    creating.value = true
+
+    const view = await createView(props.databaseId, props.collectionId, { name: 'New view' })
+
+    router.push({
+        name: 'app-page',
+        params: { name: 'view' },
+        query: {
+            databaseId: props.databaseId,
+            collectionId: props.collectionId,
+            viewId: view.id,
+        },
+    })
+
+    setTimeout(() => {
+        creating.value = false
+    }, 800)
 }
 
-async function destroy(property) {
+async function destroy(view) {
     if (!(await dialog.confirm())) return
 
-    delitingId.value = property.id
+    delitingId.value = view.id
 
     const [, error] = await tryCatch(() =>
-        destroyProperty(props.databaseId, props.collectionId, property.id)
+        destroyView(props.databaseId, props.collectionId, view.id)
     )
 
     if (error) {
         delitingId.value = null
-        snackbar.error('Failed to destroy property', error)
+        snackbar.error('Failed to destroy view', error)
         return
     }
 
-    items.value = items.value.filter((item) => item.id !== property.id)
-
     setTimeout(() => {
         delitingId.value = null
-        snackbar.success('Property deleted')
+        snackbar.success('View deleted')
+        items.value = items.value.filter((item) => item.id !== view.id)
     }, 800)
 }
 </script>
@@ -100,8 +118,8 @@ async function destroy(property) {
         <is-card color="body-800">
             <is-card-head class="flex">
                 <div class="flex-1">
-                    <is-card-title> Properties </is-card-title>
-                    <is-card-subtitle>Properties of the collection</is-card-subtitle>
+                    <is-card-title> Views </is-card-title>
+                    <is-card-subtitle>Views of the collection</is-card-subtitle>
                 </div>
 
                 <div class="flex gap-x-2">
@@ -109,26 +127,13 @@ async function destroy(property) {
                         <is-icon name="heroicons:arrow-path" />
                     </is-btn>
 
-                    <is-btn
-                        v-if="database?._capabilities?.includes('property.create')"
-                        @click="showDialog = true"
-                    >
-                        Add new
-                    </is-btn>
+                    <is-btn :loading="creating" @click="create"> Add new </is-btn>
                 </div>
             </is-card-head>
-
-            <property-dialog
-                v-model="showDialog"
-                :database-id="databaseId"
-                :collection-id="collectionId"
-                @submit="onNewProperty"
-            />
 
             <is-data-table :items :fields :loading>
                 <template #item-actions="{ item }">
                     <is-btn
-                        v-if="database?._capabilities?.includes('property.destroy')"
                         size="none"
                         color="none"
                         class="p-1 hover:bg-body-500"
@@ -146,11 +151,11 @@ async function destroy(property) {
                         variant="text"
                         :to="{
                             name: 'app-page',
-                            params: { name: 'property' },
+                            params: { name: 'view' },
                             query: {
-                                databaseId,
-                                collectionId,
-                                propertyId: item.id,
+                                databaseId: databaseId,
+                                collectionId: collectionId,
+                                viewId: item.id,
                             },
                         }"
                     >

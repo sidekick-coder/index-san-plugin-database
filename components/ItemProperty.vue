@@ -85,6 +85,7 @@ async function save() {
                 v-else
                 v-model="payload"
                 class="px-4 py-3 text-body-0 focus:bg-body-700"
+                :readonly="property.value === 'id'"
                 @change="save"
             />
         </div>
