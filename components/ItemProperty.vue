@@ -45,6 +45,8 @@ async function save() {
 
     set(data, props.property.value, payload.value)
 
+    console.log(data)
+
     await updateItem(props.databaseId, props.collectionId, props.item.id, data)
 }
 </script>
@@ -72,7 +74,15 @@ async function save() {
         </is-btn>
 
         <div class="w-10/12 border-l border-body-500">
+            <is-checkbox
+                v-if="property.type === 'boolean'"
+                v-model="payload"
+                class="px-4 py-3 text-body-0"
+                @change="save"
+            />
+
             <is-flat-input
+                v-else
                 v-model="payload"
                 class="px-4 py-3 text-body-0 focus:bg-body-700"
                 @change="save"

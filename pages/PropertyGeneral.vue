@@ -36,12 +36,27 @@ const readonly = computed(() => !props.database._capabilities?.includes('propert
 // payload
 const loading = ref(true)
 const payload = ref()
+const types = [
+    {
+        value: 'string',
+        label: 'String',
+    },
+    {
+        value: 'number',
+        label: 'Number',
+    },
+    {
+        value: 'boolean',
+        label: 'Boolean',
+    },
+]
 
 function setPayload() {
     loading.value = true
 
     payload.value = {
         name: props.property.name,
+        type: props.property.type,
         value: props.property.value,
         label: props.property.label,
         description: props.property.description,
@@ -82,6 +97,12 @@ async function save() {
             </is-card-head>
             <is-card-content class="flex flex-col gap-y-4">
                 <is-text-field :model-value="property.id" label="ID" readonly />
+                <is-select
+                    v-model="payload.type"
+                    label="Type"
+                    :options="types"
+                    :readonly="readonly"
+                />
 
                 <is-text-field v-model="payload.name" label="Name" :readonly="readonly" />
                 <is-text-field v-model="payload.label" label="Label" :readonly="readonly" />

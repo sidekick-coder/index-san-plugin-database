@@ -2,7 +2,7 @@ import { drive, resolve } from 'app:drive'
 import { tryCatch } from 'app:utils'
 import { importJson, writeJson } from 'app:hecate'
 
-export async function list({ database, collection }) {
+export async function list({ collection }) {
     const folder = resolve(collection._path, 'properties')
 
     if (!(await drive.get(folder))) {
@@ -41,12 +41,7 @@ export async function create({ database, collection, payload }) {
     const folder = resolve(collection._path, 'properties', propertyId)
 
     const config = {
-        name: payload.name,
-        label: payload.label,
-        value: payload.value,
-        description: payload.description,
-        icon: payload.icon,
-        metadata: payload.metadata,
+        ...payload,
     }
 
     await drive.mkdir(folder)
@@ -64,12 +59,9 @@ export async function update({ database, collection, propertyId, payload }) {
     }
 
     const config = {
-        name: payload.name || property.name,
-        label: payload.label || property.label,
-        value: payload.value || property.value,
-        description: payload.description || property.description,
-        icon: payload.icon || property.icon,
-        metadata: payload.metadata || property.metadata,
+        ...property,
+        ...payload,
+        _path: undefined,
     }
 
     await writeJson(resolve(property._path, 'config.json'), config)
