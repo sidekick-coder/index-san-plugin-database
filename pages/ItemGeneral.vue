@@ -1,11 +1,10 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
+import { get, set } from 'app:utils'
 
-import snackbar from 'app:snackbar'
-import { tryCatch, get, set } from 'app:utils'
+import { listProperties } from '../services/property.js'
 
-import { listProperties, updateProperty } from '../services/property.js'
-import { updateItem } from '../services/item.js'
+import ItemProperty from '../components/ItemProperty.vue'
 
 const props = defineProps({
     databaseId: {
@@ -61,25 +60,6 @@ function setPayload() {
 }
 
 watch([properties, () => props.item], setPayload)
-
-const saving = ref(false)
-
-async function save() {
-    saving.value = true
-
-    const [, error] = await tryCatch(() =>
-        updateItem(props.databaseId, props.collectionId, props.itemId, payload.value)
-    )
-
-    saving.value = false
-
-    if (error) {
-        snackbar.error('Failed to update item', error)
-        return
-    }
-
-    snackbar.success('Item updated')
-}
 </script>
 <template>
     <div class="p-4">
@@ -88,20 +68,17 @@ async function save() {
                 <is-card-title> General </is-card-title>
             </is-card-head>
             <is-card-content class="flex flex-col gap-y-4">
-                <is-text-field :model-value="item.id" label="ID" readonly />
-
-                <is-text-field
+                <item-property
                     v-for="p in properties"
                     :key="p.id"
-                    :label="p.label"
-                    :model-value="get(payload, p.value)"
                     :readonly="readonly"
-                    @update:model-value="set(payload, p.value, $event)"
+                    :database-id
+                    :collection-id
+                    :property-id="p.id"
+                    :item-id
+                    :property="p"
+                    :item="item"
                 />
-
-                <div v-if="!readonly" class="text-right">
-                    <is-btn color="primary" :loading="saving" @click="save"> Save </is-btn>
-                </div>
             </is-card-content>
         </is-card>
     </div>

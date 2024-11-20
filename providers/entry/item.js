@@ -66,7 +66,12 @@ export async function update({ collection, itemId, payload }) {
         throw new Error('[database] item not found')
     }
 
-    await writeJson(item._path, payload)
+    await writeJson(item._path, {
+        ...item,
+        ...payload,
+
+        _path: undefined,
+    })
 
     return show({ collection, itemId })
 }
