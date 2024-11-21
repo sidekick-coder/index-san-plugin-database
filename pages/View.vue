@@ -5,6 +5,7 @@ import { useRouteQuery } from 'app:utils'
 
 import ViewIcon from '../components/ViewIcon.vue'
 import ViewGeneral from './ViewGeneral.vue'
+import ViewProperties from './ViewProperties.vue'
 
 import { useCollection } from '../composables/useCollection.js'
 import { useDatabase } from '../composables/useDatabase.js'
@@ -63,6 +64,11 @@ function setTabs() {
             label: 'General',
             value: 'general',
             component: ViewGeneral,
+        },
+        {
+            label: 'Properties',
+            value: 'properties',
+            component: ViewProperties,
         },
     ]
 }

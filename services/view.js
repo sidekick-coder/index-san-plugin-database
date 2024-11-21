@@ -54,6 +54,7 @@ export async function createView(databaseId, collectionId, payload) {
         label: payload.label || 'New View',
         component: payload.component || 'database-table',
         config: payload.config || {},
+        properties: payload.properties || [],
     }
 
     await writeJson(resolve(folder, 'index.json'), json, {
@@ -79,7 +80,8 @@ export async function updateView(databaseId, collectionId, viewId, payload) {
         description: payload.description || view.description,
         icon: payload.icon || view.icon,
         component: payload.component || view.component,
-        config: view.config || payload.config,
+        config: payload.config || view.config,
+        properties: payload.properties || view.properties,
     })
 
     const updated = await showView(databaseId, collectionId, viewId)
