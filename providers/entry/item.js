@@ -7,7 +7,7 @@ export async function list({ collection, limit = 20, page = 1 }) {
     const items = []
 
     for await (const e of entries) {
-        const json = await importJson(e.path)
+        const json = await importJson(resolve(e.path, 'index.json'))
 
         json.id = e.name.replace('.json', '')
         json._path = e.path
@@ -32,13 +32,13 @@ export async function list({ collection, limit = 20, page = 1 }) {
 }
 
 export async function show({ collection, itemId }) {
-    const filename = resolve(collection.metadata.path, `${itemId}.json`)
+    const filename = resolve(collection.metadata.path, itemId)
 
     const entry = await drive.get(filename)
 
     if (!entry) return null
 
-    const json = await importJson(entry.path)
+    const json = await importJson(resolve(entry.path, 'index.json'))
 
     json.id = entry.name.replace('.json', '')
     json._path = entry.path
@@ -49,13 +49,15 @@ export async function show({ collection, itemId }) {
 export async function create({ collection, payload }) {
     const itemId = window.crypto.randomUUID()
 
-    const filename = resolve(collection.metadata.path, itemId + '.json')
+    const filename = resolve(collection.metadata.path, itemId, 'index.json')
 
     if (await drive.get(filename)) {
         throw new Error('[database] item already exists')
     }
 
-    await writeJson(filename, payload)
+    await writeJson(filename, payload, {
+        recursive: true,
+    })
 
     return show({ collection, itemId })
 }
@@ -67,7 +69,9 @@ export async function update({ collection, itemId, payload }) {
         throw new Error('[database] item not found')
     }
 
-    await writeJson(item._path, {
+    const filename = resolve(item._path, 'index.json')
+
+    await writeJson(filename, {
         ...item,
         ...payload,
 
@@ -78,7 +82,7 @@ export async function update({ collection, itemId, payload }) {
 }
 
 export async function destroy({ collection, itemId }) {
-    const filename = resolve(collection.metadata.path, `${itemId}.json`)
+    const item = await show({ collection, itemId })
 
-    await drive.destroy(filename)
+    await drive.destroy(item._path)
 }
