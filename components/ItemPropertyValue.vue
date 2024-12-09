@@ -61,9 +61,15 @@ async function save() {
         v-if="property.type === 'boolean'"
         v-model="payload"
         size="sm"
-        class="h-full"
+        class="h-full px-4 py-2"
         @change="save"
     />
 
-    <is-flat-input v-else v-model="payload" :readonly="property.value === 'id'" @change="save" />
+    <is-flat-input
+        v-else
+        v-model="payload"
+        :readonly="property.value === 'id'"
+        class="focus:bg-body-500 px-4 py-2"
+        @change="save"
+    />
 </template>

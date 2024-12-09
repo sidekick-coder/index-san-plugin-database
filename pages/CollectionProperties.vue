@@ -47,6 +47,12 @@ const fields = ref([
         value: 'description',
     },
     {
+        name: 'order',
+        label: 'Order',
+        value: 'order',
+    },
+
+    {
         name: 'actions',
         class: 'max-w-40',
     },
@@ -55,7 +61,9 @@ const fields = ref([
 async function load() {
     loading.value = true
 
-    items.value = await listProperties(props.databaseId, props.collectionId)
+    const response = await listProperties(props.databaseId, props.collectionId)
+
+    items.value = response.toSorted((a, b) => (a.order || 99) - (b.order || 99))
 
     setTimeout(() => {
         loading.value = false

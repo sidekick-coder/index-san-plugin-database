@@ -1,9 +1,8 @@
 <script setup>
-import { ref, watch } from 'vue'
-
 import PropertyIcon from '../components/PropertyIcon.vue'
-import { get, set } from 'app:utils'
-import { updateItem } from '../services/item.js'
+import ItemPropertyValue from './ItemPropertyValue.vue'
+
+import { useProperty } from '../composables/useProperty.js'
 
 const props = defineProps({
     databaseId: {
@@ -18,8 +17,8 @@ const props = defineProps({
         type: String,
         required: true,
     },
-    item: {
-        type: Object,
+    itemId: {
+        type: String,
         required: true,
     },
     property: {
@@ -27,33 +26,13 @@ const props = defineProps({
         required: true,
     },
 })
-const loading = ref(true)
-const payload = ref()
-
-function setPayload() {
-    loading.value = true
-
-    payload.value = get(props.item, props.property.value, '')
-
-    loading.value = false
-}
-
-watch(() => props.item, setPayload, { immediate: true })
-
-async function save() {
-    const data = {}
-
-    set(data, props.property.value, payload.value)
-
-    await updateItem(props.databaseId, props.collectionId, props.item.id, data)
-}
 </script>
 
 <template>
     <div class="flex w-full border border-body-500 rounded overflow-hidden">
         <is-btn
             variant="text"
-            class="w-2/12 text-body-50 rounded-none"
+            class="text-body-50 rounded-none w-40"
             color="body-500"
             content-class="justify-start"
             :to="{
@@ -68,24 +47,11 @@ async function save() {
         >
             <PropertyIcon :property="property" />
 
-            <div class="ml-2 font-bold">{{ property.label }}</div>
+            <div class="ml-2 font-bold truncate">{{ property.label }}</div>
         </is-btn>
 
-        <div class="w-10/12 border-l border-body-500">
-            <is-checkbox
-                v-if="property.type === 'boolean'"
-                v-model="payload"
-                class="px-4 py-3 text-body-0"
-                @change="save"
-            />
-
-            <is-flat-input
-                v-else
-                v-model="payload"
-                class="px-4 py-3 text-body-0 focus:bg-body-700"
-                :readonly="property.value === 'id'"
-                @change="save"
-            />
+        <div class="flex-1 border-l border-body-500">
+            <ItemPropertyValue :database-id :collection-id :item-id :property-id :property />
         </div>
     </div>
 </template>

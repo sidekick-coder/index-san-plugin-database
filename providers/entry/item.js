@@ -15,8 +15,6 @@ export async function list({ collection, limit = 20, page = 1 }) {
         items.push(json)
     }
 
-    console.log('items', { page, limit })
-
     const data = items.slice((page - 1) * limit, page * limit)
 
     const pagination = {

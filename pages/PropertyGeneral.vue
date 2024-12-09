@@ -2,7 +2,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 
 import snackbar from 'app:snackbar'
-import { tryCatch } from 'app:utils'
+import { tryCatch, copy } from 'app:utils'
 
 import { updateProperty } from '../services/property.js'
 
@@ -54,14 +54,7 @@ const types = [
 function setPayload() {
     loading.value = true
 
-    payload.value = {
-        name: props.property.name,
-        type: props.property.type,
-        value: props.property.value,
-        label: props.property.label,
-        description: props.property.description,
-        icon: props.property.icon,
-    }
+    payload.value = copy(props.property)
 
     setTimeout(() => {
         loading.value = false
@@ -107,6 +100,7 @@ async function save() {
                 <is-text-field v-model="payload.name" label="Name" :readonly="readonly" />
                 <is-text-field v-model="payload.label" label="Label" :readonly="readonly" />
                 <is-text-field v-model="payload.value" label="Value" :readonly="readonly" />
+                <is-text-field v-model="payload.order" label="Order" :readonly="readonly" />
                 <is-text-field
                     v-model="payload.description"
                     label="Description"

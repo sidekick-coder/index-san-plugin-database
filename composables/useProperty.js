@@ -1,5 +1,4 @@
 import { onMounted, onUnmounted, readonly, ref, isRef, watch } from 'vue'
-import { showCollection } from '../services/collection.js'
 import { onHook, offHook } from 'app:hook'
 import { showProperty } from '../services/property.js'
 
