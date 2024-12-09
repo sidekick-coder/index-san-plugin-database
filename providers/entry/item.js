@@ -15,9 +15,12 @@ export async function list({ collection, limit = 20, page = 1 }) {
         items.push(json)
     }
 
+    console.log('items', { page, limit })
+
     const data = items.slice((page - 1) * limit, page * limit)
 
-    const meta = {
+    const pagination = {
+        type: 'page',
         total: items.length,
         last_page: Math.ceil(items.length / limit),
         page,
@@ -25,7 +28,7 @@ export async function list({ collection, limit = 20, page = 1 }) {
     }
 
     return {
-        meta,
+        pagination,
         data,
     }
 }

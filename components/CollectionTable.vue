@@ -1,10 +1,11 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { listItems } from '../services/item.js'
 import { listProperties } from '../services/property.js'
 
 import PropertyIcon from './PropertyIcon.vue'
 import ItemValue from './ItemValue.vue'
+import CollectionPagination from './CollectionPagination.vue'
 
 const props = defineProps({
     databaseId: {
@@ -14,6 +15,10 @@ const props = defineProps({
     collectionId: {
         type: String,
         required: true,
+    },
+    limit: {
+        type: Number,
+        default: 10,
     },
 })
 
@@ -33,29 +38,41 @@ const properties = defineModel('properties', {
 
 const items = ref([])
 const allProperties = ref([])
-const meta = ref({})
+const pagination = ref({})
+const loading = ref(true)
 
 const fields = computed(() => {
     let visible = allProperties.value
 
     if (properties.value.length) {
         visible = properties.value
-            .map((p) => allProperties.value.find((p2) => p2.name === p.name))
+            .map((p) => ({
+                ...allProperties.value.find((p2) => p2.name === p.name),
+                ...p,
+            }))
             .filter((p) => p)
     }
 
     return visible.map((p) => ({
-        name: p.name,
-        label: p.label,
-        property: p,
+        ...p,
+        name: p.id,
     }))
 })
 
 async function setItems() {
-    const response = await listItems(props.databaseId, props.collectionId)
+    loading.value = true
+
+    const response = await listItems(props.databaseId, props.collectionId, {
+        page: pagination.value.page,
+        limit: props.limit,
+    })
 
     items.value = response.data
-    meta.value = response.meta
+    pagination.value = response.pagination
+
+    setTimeout(() => {
+        loading.value = false
+    }, 500)
 }
 
 async function setFields() {
@@ -64,32 +81,41 @@ async function setFields() {
     allProperties.value = response
 }
 
+watch(() => pagination.value.page, setItems, { immediate: true })
+
 onMounted(() => {
-    setItems()
     setFields()
 })
 </script>
 
 <template>
-    <is-card color="none" class="border-x border-body-500 w-full">
-        <is-data-table :fields="fields" :items="items" item-field-class="focus-within:bg-body-500">
+    <is-card color="body-800" class="w-full border border-body-500">
+        <is-data-table
+            :loading
+            :fields
+            :items
+            item-field-class="focus-within:bg-body-500"
+            field-class="border-0"
+        >
             <template #field="{ field }">
-                <div class="flex items-center">
-                    <PropertyIcon :property="field.property" size="sm" />
+                <div class="flex items-center h-full">
+                    <PropertyIcon :property="field" />
                     <span class="ml-2">{{ field.label }}</span>
                 </div>
             </template>
 
-            <template v-for="field in fields" #[`item-${field.name}`]="{ item }" :key="field.name">
+            <template v-for="field in fields" #[`item-${field.id}`]="{ item }" :key="field.id">
                 <ItemValue
                     :database-id="databaseId"
                     :collection-id="collectionId"
                     :item-id="item.id"
-                    :property-id="field.property.id"
-                    :property="field.property"
+                    :property-id="field.id"
+                    :property="field"
                     :options="{ initial: item }"
                 />
             </template>
         </is-data-table>
+
+        <CollectionPagination v-model="pagination" />
     </is-card>
 </template>

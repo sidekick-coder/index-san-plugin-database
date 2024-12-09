@@ -57,14 +57,13 @@ async function save() {
 </script>
 
 <template>
-    <div>
-        <is-checkbox v-if="property.type === 'boolean'" v-model="payload" @change="save" />
+    <is-checkbox
+        v-if="property.type === 'boolean'"
+        v-model="payload"
+        size="sm"
+        class="h-full"
+        @change="save"
+    />
 
-        <is-flat-input
-            v-else
-            v-model="payload"
-            :readonly="property.value === 'id'"
-            @change="save"
-        />
-    </div>
+    <is-flat-input v-else v-model="payload" :readonly="property.value === 'id'" @change="save" />
 </template>

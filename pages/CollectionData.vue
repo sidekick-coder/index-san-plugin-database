@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 
 import snackbar from 'app:snackbar'
 import dialog from 'app:dialog'
@@ -8,6 +8,7 @@ import { tryCatch } from 'app:utils'
 import ItemDialog from '../components/ItemDialog.vue'
 import { destroyItem, listItems } from '../services/item.js'
 import { listProperties } from '../services/property.js'
+import CollectionPagination from '../components/CollectionPagination.vue'
 
 const props = defineProps({
     database: {
@@ -31,18 +32,18 @@ const props = defineProps({
 // data
 const loading = ref(false)
 const items = ref([])
-const meta = ref({})
+const pagination = ref({})
 
-async function loadPage(page) {
+async function load() {
     loading.value = true
 
-    const { data, meta: _meta } = await listItems(props.databaseId, props.collectionId, {
-        limit: 10,
-        page,
+    const response = await listItems(props.databaseId, props.collectionId, {
+        limit: 1,
+        page: pagination.value.page,
     })
 
-    items.value = data
-    meta.value = _meta
+    items.value = response.data
+    pagination.value = response.pagination
 
     setTimeout(() => {
         loading.value = false
@@ -50,10 +51,12 @@ async function loadPage(page) {
 }
 
 async function refresh() {
-    await loadPage(meta.value.page)
+    await load()
 }
 
-onMounted(loadPage)
+onMounted(load)
+
+watch(() => pagination.value.page, load)
 
 // properties
 const properties = ref([])
@@ -176,13 +179,7 @@ async function destroy(item) {
                         </is-card-content>
                     </is-card>
 
-                    <is-pagination
-                        v-if="meta.last_page > 1"
-                        class="mt-auto"
-                        :model-value="meta.page"
-                        :total="meta.last_page"
-                        @update:model-value="loadPage"
-                    />
+                    <CollectionPagination v-model="pagination" />
                 </div>
             </is-card-content>
         </is-card>
