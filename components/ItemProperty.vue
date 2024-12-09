@@ -45,8 +45,6 @@ async function save() {
 
     set(data, props.property.value, payload.value)
 
-    console.log(data)
-
     await updateItem(props.databaseId, props.collectionId, props.item.id, data)
 }
 </script>

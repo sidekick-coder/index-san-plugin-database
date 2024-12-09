@@ -44,7 +44,7 @@
         {
             "name": "collection-table",
             "icon": "heroicons:table-cells",
-            "filename": "components/CollectionTable.js"
+            "filename": "components/CollectionTable.vue"
         }
     ]
 }

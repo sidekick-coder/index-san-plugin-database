@@ -1,14 +1,52 @@
-import { onMounted, onUnmounted, readonly, ref, isRef, watch } from 'vue'
-import { onHook, offHook } from 'app:hook'
+import { readonly, ref, isRef, onUnmounted, onMounted, computed, reactive } from 'vue'
+import { onHook } from 'app:hook'
 import { showItem } from '../services/item.js'
+
+const state = reactive(new Map())
+
+onHook('item:updated', ({ databaseId, collectionId, itemId, payload }) => {
+    const key = `${databaseId}-${collectionId}-${itemId}`
+
+    const instances = state.get(`${key}:instances`)
+
+    if (instances) {
+        state.set(`${key}:item`, payload)
+    }
+})
 
 export function useItem(_databaseId = null, _collectionId = null, _itemId = null, options = {}) {
     const databaseId = isRef(_databaseId) ? _databaseId : ref(_databaseId)
     const collectionId = isRef(_collectionId) ? _collectionId : ref(_collectionId)
     const itemId = isRef(_itemId) ? _itemId : ref(_itemId)
 
-    const item = ref(null)
-    const loading = ref(false)
+    const key = computed(() => `${databaseId.value}-${collectionId.value}-${itemId.value}`)
+
+    const item = computed({
+        get() {
+            return state.get(`${key.value}:item`) || null
+        },
+        set(value) {
+            state.set(`${key.value}:item`, value)
+        },
+    })
+
+    const loading = computed({
+        get() {
+            return state.get(`${key.value}:loading`) || false
+        },
+        set(value) {
+            state.set(`${key.value}:loading`, value)
+        },
+    })
+
+    const instances = computed({
+        get() {
+            return state.get(`${key.value}:instances`) || 0
+        },
+        set(value) {
+            state.set(`${key.value}:instances`, value)
+        },
+    })
 
     async function load() {
         loading.value = true
@@ -20,35 +58,27 @@ export function useItem(_databaseId = null, _collectionId = null, _itemId = null
         }, 800)
     }
 
-    async function refresh() {
-        const newData = await showItem(databaseId.value, collectionId.value, itemId.value)
-
-        if (JSON.stringify(newData) !== JSON.stringify(item.value)) {
-            item.value = newData
-        }
+    if (options.initial && !item.value) {
+        item.value = options.initial
     }
 
-    function onUpdated(payload) {
-        if (payload.databaseId !== databaseId.value) return
-
-        if (payload.collectionId !== collectionId.value) return
-
-        if (payload.itemId !== itemId.value) return
-
-        refresh()
-    }
-
-    onMounted(() => onHook('item:updated', onUpdated))
-
-    onUnmounted(() => offHook('item:updated', onUpdated))
-
-    if (options.immediate) {
+    if (!item.value && !loading.value) {
         load()
     }
 
-    if (options.watch) {
-        watch([databaseId, collectionId, itemId], load)
-    }
+    onMounted(() => {
+        instances.value++
+    })
+
+    onUnmounted(() => {
+        instances.value--
+
+        if (instances.value === 0) {
+            state.delete(`${key.value}:item`)
+            state.delete(`${key.value}:instances`)
+            state.delete(`${key.value}:loading`)
+        }
+    })
 
     return {
         collectionId,
