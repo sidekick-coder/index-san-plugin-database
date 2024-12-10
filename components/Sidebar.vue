@@ -4,6 +4,7 @@ import { onHook } from 'app:hook'
 
 import { listDatabases } from '../services/database.js'
 import SidebarItem from './SidebarItem.vue'
+import DatabaseNewDialog from './DatabaseNewDialog.vue'
 
 const databases = ref([])
 
@@ -16,6 +17,8 @@ onMounted(load)
 onHook('database:created', load)
 onHook('database:updated', load)
 onHook('database:deleted', load)
+
+const dialog = ref(false)
 </script>
 
 <template>
@@ -24,15 +27,17 @@ onHook('database:deleted', load)
             <is-icon name="heroicons:circle-stack-solid" class="text-xl" />
             <div class="font-bold">Databases</div>
             <is-btn
-                :to="{ name: 'app-page', params: { name: 'database-new' } }"
                 class="ml-auto"
                 size="none"
                 variant="text"
                 color="body-500"
+                @click="dialog = true"
             >
                 <is-icon name="heroicons:plus-16-solid" />
             </is-btn>
         </div>
+
+        <database-new-dialog v-model="dialog" />
 
         <sidebar-item v-for="d in databases" :key="d.id" :database="d" />
     </div>
