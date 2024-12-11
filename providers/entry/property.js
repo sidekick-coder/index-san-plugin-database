@@ -14,7 +14,7 @@ export async function list({ collection }) {
     const entries = await drive.list(folder)
 
     for await (const e of entries) {
-        const [json, error] = await tryCatch(() => importJson(resolve(e.path, 'config.json')))
+        const [json, error] = await tryCatch(() => importJson(resolve(e.path, 'index.json')))
 
         if (error) continue
 
@@ -44,9 +44,9 @@ export async function create({ database, collection, payload }) {
         ...payload,
     }
 
-    await drive.mkdir(folder)
-
-    await writeJson(resolve(folder, 'config.json'), config)
+    await writeJson(resolve(folder, 'index.json'), config, {
+        recursive: true,
+    })
 
     return show({ database, collection, propertyId })
 }
@@ -64,7 +64,7 @@ export async function update({ database, collection, propertyId, payload }) {
         _path: undefined,
     }
 
-    await writeJson(resolve(property._path, 'config.json'), config)
+    await writeJson(resolve(property._path, 'index.json'), config)
 
     return show({ database, collection, propertyId })
 }

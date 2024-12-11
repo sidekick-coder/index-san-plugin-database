@@ -1,15 +1,15 @@
 <script setup>
 import { onMounted, ref, watch } from 'vue'
-
+import { useRouter } from 'vue-router'
 import snackbar from 'app:snackbar'
 import dialog from 'app:dialog'
 import { tryCatch } from 'app:utils'
 
-import ItemDialog from '../components/ItemDialog.vue'
-import { destroyItem, listItems } from '../services/item.js'
+import { createItem, destroyItem, listItems } from '../services/item.js'
 import { listProperties } from '../services/property.js'
 import CollectionPagination from '../components/CollectionPagination.vue'
 
+// general
 const props = defineProps({
     database: {
         type: Object,
@@ -29,6 +29,8 @@ const props = defineProps({
     },
 })
 
+const router = useRouter()
+
 // data
 const loading = ref(false)
 const items = ref([])
@@ -38,7 +40,7 @@ async function load() {
     loading.value = true
 
     const response = await listItems(props.databaseId, props.collectionId, {
-        limit: 1,
+        limit: 10,
         page: pagination.value.page,
     })
 
@@ -68,9 +70,35 @@ async function loadProperties() {
 onMounted(loadProperties)
 
 // actions
-const showDialog = ref(false)
-
+const creating = ref(false)
 const delitingId = ref(null)
+
+async function create() {
+    creating.value = true
+
+    const [item, error] = await tryCatch(() => createItem(props.databaseId, props.collectionId, {}))
+
+    if (error) {
+        creating.value = false
+        snackbar.error('Failed to create item', error)
+        return
+    }
+
+    setTimeout(() => {
+        creating.value = false
+        snackbar.success('Item created')
+
+        router.push({
+            name: 'app-page',
+            params: { name: 'item' },
+            query: {
+                databaseId: props.databaseId,
+                collectionId: props.collectionId,
+                itemId: item.id,
+            },
+        })
+    }, 800)
+}
 
 async function destroy(item) {
     if (!(await dialog.confirm())) return
@@ -111,20 +139,13 @@ async function destroy(item) {
 
                     <is-btn
                         v-if="database?._capabilities?.includes('item.create')"
-                        @click="showDialog = true"
+                        :loading="creating"
+                        @click="create"
                     >
                         Add new
                     </is-btn>
                 </div>
             </is-card-head>
-
-            <item-dialog
-                v-model="showDialog"
-                :database-id
-                :collection-id
-                :properties
-                @submit="refresh"
-            />
 
             <is-card-content class="flex-1 relative h-inherit">
                 <div v-if="loading" class="w-full h-80 flex items-center justify-center">

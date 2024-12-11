@@ -4,6 +4,21 @@ import { showProvider } from './provider.js'
 
 import { emitHook } from 'app:hook'
 
+export const properTypes = [
+    {
+        id: 'string',
+        label: 'String',
+    },
+    {
+        id: 'number',
+        label: 'Number',
+    },
+    {
+        id: 'boolean',
+        label: 'Boolean',
+    },
+]
+
 export async function listProperties(databaseId, collectionId) {
     const collection = await showCollection(databaseId, collectionId)
     const database = await showDatabase(databaseId)

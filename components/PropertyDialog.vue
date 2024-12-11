@@ -5,8 +5,7 @@ import { tryCatch } from 'app:utils'
 
 import snackbar from 'app:snackbar'
 
-import { createCollection } from '../services/collection.js'
-import { createProperty } from '../services/property.js'
+import { createProperty, properTypes } from '../services/property.js'
 
 const props = defineProps({
     databaseId: {
@@ -63,10 +62,16 @@ async function submit() {
             </is-card-head>
 
             <is-card-content class="flex flex-col gap-y-4">
-                <is-text-field v-model="payload.name" label="Name" />
+                <is-select
+                    v-model="payload.type"
+                    label="Type"
+                    :options="properTypes"
+                    label-key="label"
+                    value-key="id"
+                />
+
                 <is-text-field v-model="payload.label" label="Label" />
                 <is-text-field v-model="payload.value" label="Value" />
-                <is-text-field v-model="payload.description" label="Description" />
 
                 <div class="text-right">
                     <is-btn :loading @click="submit">Create</is-btn>

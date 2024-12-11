@@ -4,7 +4,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import snackbar from 'app:snackbar'
 import { tryCatch, copy } from 'app:utils'
 
-import { updateProperty } from '../services/property.js'
+import { updateProperty, properTypes } from '../services/property.js'
 
 const props = defineProps({
     databaseId: {
@@ -36,20 +36,6 @@ const readonly = computed(() => !props.database._capabilities?.includes('propert
 // payload
 const loading = ref(true)
 const payload = ref()
-const types = [
-    {
-        value: 'string',
-        label: 'String',
-    },
-    {
-        value: 'number',
-        label: 'Number',
-    },
-    {
-        value: 'boolean',
-        label: 'Boolean',
-    },
-]
 
 function setPayload() {
     loading.value = true
@@ -90,16 +76,17 @@ async function save() {
             </is-card-head>
             <is-card-content class="flex flex-col gap-y-4">
                 <is-text-field :model-value="property.id" label="ID" readonly />
+                <is-text-field v-model="payload.label" label="Label" :readonly="readonly" />
+                <is-text-field v-model="payload.value" label="Value" :readonly="readonly" />
                 <is-select
                     v-model="payload.type"
                     label="Type"
-                    :options="types"
+                    :options="properTypes"
+                    label-key="label"
+                    value-key="id"
                     :readonly="readonly"
                 />
 
-                <is-text-field v-model="payload.name" label="Name" :readonly="readonly" />
-                <is-text-field v-model="payload.label" label="Label" :readonly="readonly" />
-                <is-text-field v-model="payload.value" label="Value" :readonly="readonly" />
                 <is-text-field v-model="payload.order" label="Order" :readonly="readonly" />
                 <is-text-field
                     v-model="payload.description"

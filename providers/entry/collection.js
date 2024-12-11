@@ -1,4 +1,4 @@
-import { drive, resolve, decode, encode } from 'app:drive'
+import { drive, resolve } from 'app:drive'
 import { tryCatch } from 'app:utils'
 import { importJson, writeJson } from 'app:hecate'
 
@@ -22,7 +22,7 @@ export async function list({ database }) {
     const entries = await drive.list(folder)
 
     for await (const e of entries) {
-        const [json, error] = await tryCatch(() => importJson(resolve(e.path, 'config.json')))
+        const [json, error] = await tryCatch(() => importJson(resolve(e.path, 'index.json')))
 
         if (error) continue
 
@@ -38,7 +38,7 @@ export async function list({ database }) {
 export async function show({ database, collectionId }) {
     const all = await list({ database })
 
-    const collection = all.find((c) => c._id === collectionId)
+    const collection = all.find((c) => c.id === collectionId)
 
     return collection || null
 }
@@ -55,9 +55,13 @@ export async function create({ database, payload }) {
         metadata: payload.metadata,
     }
 
-    await drive.mkdir(folder)
+    await drive.mkdir(folder, { recursive: true })
 
-    await writeJson(resolve(folder, 'config.json'), config)
+    if (payload.metadata.path) {
+        await drive.mkdir(payload.metadata.path, { recursive: true })
+    }
+
+    await writeJson(resolve(folder, 'index.json'), config)
 
     return show({ database, collectionId })
 }
@@ -72,7 +76,7 @@ export async function update({ database, collectionId, payload }) {
         metadata: payload.metadata,
     }
 
-    await writeJson(resolve(folder, 'config.json'), config)
+    await writeJson(resolve(folder, 'index.json'), config)
 
     return show({ database, collectionId })
 }

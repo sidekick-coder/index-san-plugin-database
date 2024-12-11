@@ -17,8 +17,9 @@ const model = defineModel({
 const router = useRouter()
 
 const payload = ref({
-    id: '',
     label: '',
+    icon: '',
+    description: '',
     provider: 'entry',
 })
 
@@ -50,7 +51,7 @@ async function submit() {
     router.push({
         name: 'app-page',
         params: { name: 'database' },
-        query: { databaseId: database.id },
+        query: { databaseId: database._id },
     })
 
     setTimeout(() => {
@@ -73,7 +74,6 @@ async function submit() {
                 <div class="text-2xl font-bold mb-4">Create database</div>
 
                 <div class="flex flex-col gap-y-4">
-                    <is-text-field v-model="payload.id" label="ID" />
                     <is-text-field v-model="payload.label" label="Label" />
                     <is-text-field v-model="payload.icon" label="Icon" />
 
@@ -91,9 +91,7 @@ async function submit() {
                         label="Filename"
                     />
 
-                    <is-btn :disabled="!payload.id" :loading="creating" @click="submit">
-                        Create
-                    </is-btn>
+                    <is-btn :loading="creating" @click="submit"> Create </is-btn>
                 </div>
             </is-card>
         </div>

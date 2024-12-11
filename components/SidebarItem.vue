@@ -33,7 +33,7 @@ watch(
 )
 
 onMounted(() => {
-    show.value = route.query.databaseId === props.database.id
+    show.value = route.query.databaseId === props.database._id
 })
 </script>
 <template>

@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-
+import { useRouter } from 'vue-router'
 import { tryCatch } from 'app:utils'
 
 import snackbar from 'app:snackbar'
@@ -24,6 +24,8 @@ const props = defineProps({
 
 const emit = defineEmits(['submit'])
 
+const router = useRouter()
+
 const model = defineModel({
     type: Boolean,
 })
@@ -31,7 +33,7 @@ const model = defineModel({
 const loading = ref(false)
 
 const payload = ref({
-    name: '',
+    label: '',
     description: '',
     metadata: {},
 })
@@ -46,8 +48,15 @@ async function submit() {
     if (error) {
         loading.value = false
         snackbar.error('Failed to create collection', error)
+        console.error(error)
         return
     }
+
+    router.push({
+        name: 'app-page',
+        params: { name: 'collection' },
+        query: { databaseId: props.databaseId, collectionId: collection.id },
+    })
 
     setTimeout(() => {
         loading.value = false
@@ -65,7 +74,7 @@ async function submit() {
             </is-card-head>
 
             <is-card-content class="flex flex-col gap-y-4">
-                <is-text-field v-model="payload.name" label="Name" />
+                <is-text-field v-model="payload.label" label="Label" />
                 <is-text-field v-model="payload.description" label="Description" />
 
                 <div v-for="field in metaFields" :key="field.name">

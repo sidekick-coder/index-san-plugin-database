@@ -1,6 +1,6 @@
-import { drive, encode, decode, resolve } from 'app:drive'
+import { drive, resolve } from 'app:drive'
 import { emitHook } from 'app:hook'
-import { tryCatch } from 'app:utils'
+import { importJson, writeJson } from 'app:hecate'
 
 import { showProvider } from './provider.js'
 
@@ -15,17 +15,7 @@ export async function listDatabases() {
     const databases = []
 
     for await (const e of entries) {
-        const configEntry = await drive.get(resolve(e.path, 'config.json'))
-
-        if (!configEntry) continue
-
-        const [json, error] = await tryCatch(async () => {
-            const contents = await drive.read(configEntry.path)
-
-            return JSON.parse(decode(contents))
-        })
-
-        if (error || !json) continue
+        const json = await importJson(resolve(e.path, 'index.json'))
 
         const provider = await showProvider(json.provider)
 
@@ -51,15 +41,11 @@ export async function showDatabase(id) {
 export async function createDatabase(payload) {
     const folder = '.is/databases'
 
-    if (/[^\w\s-]/.test(payload.id)) {
-        throw new Error('Id can not have special chars')
-    }
-
-    const exists = await drive.get(folder)
-
-    if (!exists) {
+    if (!(await drive.get(folder))) {
         await drive.mkdir(folder)
     }
+
+    const id = window.crypto.randomUUID()
 
     const config = {
         label: payload.label,
@@ -68,16 +54,15 @@ export async function createDatabase(payload) {
         icon: payload.icon,
     }
 
-    await drive.mkdir(resolve(folder, payload.id))
-    await drive.mkdir(resolve(folder, payload.id, 'collections'))
-    await drive.write(
-        resolve(folder, payload.id, 'config.json'),
-        encode(JSON.stringify(config, null, 4))
-    )
+    const dbPath = resolve(folder, id)
 
-    emitHook('database:created', payload)
+    await drive.mkdir(dbPath)
+    await drive.mkdir(resolve(dbPath, 'collections'))
+    await writeJson(resolve(dbPath, 'index.json'), config)
 
-    return showDatabase(payload.id)
+    emitHook('database:created', { id, ...payload })
+
+    return showDatabase(id)
 }
 
 export async function updateDatabase(id, payload) {
@@ -98,9 +83,7 @@ export async function updateDatabase(id, payload) {
         icon: payload.icon || old.icon,
     }
 
-    const configFilename = resolve(filename, 'config.json')
-
-    await drive.write(configFilename, encode(JSON.stringify(config, null, 4)))
+    await writeJson(resolve(filename, 'index.json'), config)
 
     emitHook('database:updated', {
         id,

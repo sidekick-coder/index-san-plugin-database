@@ -58,13 +58,13 @@ function setTabs() {
                 import('./CollectionProperties.vue').then((m) => m.default)
             ),
         },
-        {
-            label: 'Views',
-            value: 'views',
-            component: defineAsyncComponent(() =>
-                import('./CollectionViews.vue').then((m) => m.default)
-            ),
-        },
+        // {
+        //     label: 'Views',
+        //     value: 'views',
+        //     component: defineAsyncComponent(() =>
+        //         import('./CollectionViews.vue').then((m) => m.default)
+        //     ),
+        // },
     ]
 }
 
